@@ -6,5 +6,7 @@ typedef struct Trapframe {
 }_trapframe_t;
 
 void dispatch_interrupt();
+void dispatch_soft();
+void dispatch_ext();
 
 #endif
