@@ -9,8 +9,14 @@ typedef struct Trapframe {
     
 }_trapframe_t;
 
-void dispatch_interrupt();
+typedef struct TrapCtrl {
+    void (*pDispatch)(_trapframe_t tf);
+}_trapctrl_t;
+
+void dispatch_interrupt(_trapframe_t tf));
 void dispatch_soft_interrupt();
 void dispatch_ext_interrupt();
+
+void trap_init();
 
 #endif
