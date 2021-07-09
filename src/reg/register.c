@@ -1,5 +1,8 @@
-void dispatch_register_access(){
+#include "types.h"
+#include "reg.h"
 
+void dispatch_register_access(){
+    
 }
 
 void register_read(){
