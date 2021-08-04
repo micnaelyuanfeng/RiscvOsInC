@@ -37,15 +37,15 @@ copy:
 	riscv64-unknown-elf-ld -T linker.ld $(ASM_OBJ) $(C_OBJ) -o $(BIN_DIR)/$(ELF_FILE)
 	riscv64-unknown-elf-objcopy $(BIN_DIR)/$(ELF_FILE) --strip-all -O binary  $(BIN_DIR)/$(BIN_FILE)
 
-# KERNEL_LOAD_PA := 0x80200000
+KERNEL_LOAD_PA := 0x80200000
 
 qemu:
 	qemu-system-riscv64 \
 		-machine virt	\
 		-nographic	\
-		-bios ./opensbi-riscv64-generic-fw_dynamic.bin \
+		-bios default \
 		-m 256M	\
-		-kernel $(BIN_DIR)/$(BIN_FILE)
+		-device loader,file=$(BIN_DIR)/$(BIN_FILE),addr=$(KERNEL_LOAD_PA)
 		
 
 run: build copy qemu

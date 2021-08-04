@@ -27,7 +27,7 @@ void fnEnableTimerIntr(){
     RegisterAccess.readSie(&sieValue);
 
     sieValue |= enableTimerIntrBit;
-    RegisterAccess.writeSie(enableTimerIntrBit);
+    RegisterAccess.writeSie(sieValue);
 
     uint64_t cycles = 0;
 

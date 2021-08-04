@@ -17,8 +17,6 @@ void kentry(){
     fnTrapInit();
     fnTimerInit();
     fnGreetingPrint();
-    
-    // asm("ebreak");
    
     while(1);
 }
