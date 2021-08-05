@@ -7,7 +7,7 @@ typedef void (*_intrHandler)(void* _tf, ...);
 
 
 
-void _handlerSupervisorTimer(void* _tf, ...);
+void _handlerSupervisorTimer(void* _tf);
 void _handlerEbp(void* _tf);
 void _handlerSysCall(void* _tf, ...);
 

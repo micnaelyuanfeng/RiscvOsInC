@@ -3,6 +3,13 @@
 #include "reg.h"
 #include "device.h"
 
+extern uint8_t PrintBuf[];
+
+void fnUartInit(){
+    fnStdoutInit(PrintBuf, fnUartPutCharWrap);
+    fnUartHwInit();
+}
+
 void fnUartHwInit(){
     uint8_t volatile* uartBaseAddr = (uint8_t volatile*)UART_BASE;
     uint8_t volatile* uartFCRAddr = (uint8_t volatile*)UART_FCR_ADDR;

@@ -14,11 +14,9 @@ void fnTimerInit(){
 
 void fnSetTimerInterval(){
 
-    RegisterAccess.readCcyle(&cycle);
-
     register uint64_t eid asm("x17") = __SBI_REQ_SET_TIMER ;
-    register uint64_t arg0 asm("x10") = cycle + TIMER_BASE;
-    register uint64_t arg1 asm("x11") = 0;
+    register uint64_t arg0 asm("x10") = (cycle + TIMER_BASE) >> 32;
+    register uint64_t arg1 asm("x11") = (cycle + TIMER_BASE >> 32) >> 0xFFFFFFFFF;
     register uint64_t arg2 asm("x12") = 0;
 
     __asm__ volatile (
@@ -35,6 +33,8 @@ void fnEnableTimerIntr(){
 
     sieValue |= enableTimerIntrBit;
     RegisterAccess.writeSie(sieValue);
+
+    RegisterAccess.readCcyle(&cycle);
 
     fnSetTimerInterval();
 }

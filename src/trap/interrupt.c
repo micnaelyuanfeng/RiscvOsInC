@@ -9,8 +9,8 @@
 extern RegisterRoute_t RegisterAccess;
 extern void __trap_enter();
 
-_intrHandler TrapVecTbl[InterruptUnknown];
-_intrHandler ExcpVecTbl[ExceptionUnknown];
+_intrHandler TrapVecTbl[];
+// _intrHandler ExcpVecTbl[ExceptionUnknown];
 
 void fnBuildIntrVetTbl(){
     TrapVecTbl[SupervisorSoft] = _handlerEbp;
