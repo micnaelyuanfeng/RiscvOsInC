@@ -39,4 +39,7 @@ int32_t __muldi3(int32_t a, int32_t b);
 uint32_t __udivdi3(uint32_t a, uint32_t b);
 uint32_t __umoddi3(uint32_t a, uint32_t b);
 
+// bool __acquirelock();
+// void __releaselock();
+
 #endif

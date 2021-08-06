@@ -2,6 +2,7 @@
 #define _VM_H_
 
 #define VA_PATCH                0xFFFFFFFF00000000
+#define PAGE_SIZE               4096
 
 enum PageTableEntryBits {
     Valid = 1 << 0,

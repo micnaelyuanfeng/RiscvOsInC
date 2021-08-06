@@ -8,6 +8,8 @@ SECTIONS
 {
     . = BASE_ADDRESS;
 
+    __KernelStartAddr = .;
+
     .text : {
         *(.text.init)
         *(.text) 
