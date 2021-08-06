@@ -15,14 +15,14 @@
     .globl __trap_enter
     .align 16
 __trap_enter:
-    # sp <-> sscratch
+    //# sp <-> sscratch
     csrrw sp, sscratch, sp
 
     bnez sp, __user_level
 
 __kernel_level:
 
-    # if sscratch was zero, just use the old sp value (which was kernel stack)
+    //# if sscratch was zero, just use the old sp value (which was kernel stack)
     csrr sp, sscratch
 
 __user_level:

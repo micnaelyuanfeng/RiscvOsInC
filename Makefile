@@ -29,7 +29,7 @@ BIN_FILE = kernel.bin
 	$(CC) $(CFLAG) $(INCLUDES) $< -o $@
 
 %.o:%.S
-	$(CASM) -g2 -march=rv64i $< -o $@
+	$(CC) $(CFLAG)  $< -o $@
 
 build: $(ASM_OBJ) $(C_OBJ)
 

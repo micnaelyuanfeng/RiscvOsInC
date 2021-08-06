@@ -5,18 +5,22 @@
 #include "printf.h"
 
 extern RegisterRoute_t RegisterAccess;
-
-uint64_t cycle;
+extern DeviceTimer_t TimerControl;
 
 void fnTimerInit(){
-    fnEnableTimerIntr();
+    TimerControl._enableTimerIntr = fnEnableTimerIntr;
+    TimerControl._addTick = fnAddTick;
+    TimerControl._clearTick = fnClearTick;
+    TimerControl.tick = 0;
+
+    TimerControl._enableTimerIntr();
 }
 
 void fnSetTimerInterval(){
 
-    register uint64_t eid asm("x17") = __SBI_REQ_SET_TIMER ;
-    register uint64_t arg0 asm("x10") = (cycle + TIMER_BASE) >> 32;
-    register uint64_t arg1 asm("x11") = (cycle + TIMER_BASE >> 32) >> 0xFFFFFFFFF;
+    register uint64_t eid asm("x17") = 0 ;
+    register uint64_t arg0 asm("x10") = TimerControl.cycle + 100000;
+    register uint64_t arg1 asm("x11") = 0;
     register uint64_t arg2 asm("x12") = 0;
 
     __asm__ volatile (
@@ -25,7 +29,7 @@ void fnSetTimerInterval(){
 }
 
 void fnEnableTimerIntr(){
-    uint64_t enableTimerIntrBit = 0xFF;
+    uint64_t enableTimerIntrBit = 1 << 5;
 
     uint64_t sieValue = 0;
     
@@ -34,23 +38,15 @@ void fnEnableTimerIntr(){
     sieValue |= enableTimerIntrBit;
     RegisterAccess.writeSie(sieValue);
 
-    RegisterAccess.readCcyle(&cycle);
+    RegisterAccess.readCcyle(&TimerControl.cycle);
 
     fnSetTimerInterval();
 }
 
-// void _clearTick(){
+void fnAddTick(){
 
-// }
+}
 
-// void _addTick(){
+void fnClearTick(){
 
-// }
-
-// uint64_t _getTick(){
-
-// }
-
-// uint64_t _getCyle(){
-
-// }
+}

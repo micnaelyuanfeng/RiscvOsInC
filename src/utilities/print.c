@@ -7,7 +7,7 @@
 static __putf __stdoutF;
 static void* __stdoutP;
 
-uint8_t PrintBuf[BUF_SIZE];
+extern uint8_t PrintBuf;
 
 void fnConsolePucharSbi(uint8_t _ch){
     register uint64_t eid __asm__("x17") = __SBI_REQ_CONSOLE_PUTCHAR;

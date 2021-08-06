@@ -35,13 +35,22 @@ uint8_t fnUartGetChar();
 */
 #define TIMER_BASE  100000
 
+typedef void (*__enableTimerIntr)();
+typedef void (*__clearTick)();
+typedef void (*__addTick)();
+
+typedef struct DeviceTimer {
+    uint64_t cycle;
+    uint64_t tick;
+
+    __enableTimerIntr _enableTimerIntr;
+    __clearTick _clearTick;
+    __addTick _addTick;
+}DeviceTimer_t;
+
 void fnTimerInit();
 void fnEnableTimerIntr();
-void fnSetTimerInterval();
 void fnClearTick();
 void fnAddTick();
-
-uint64_t fnGetTick();
-uint64_t fnGetCyle();
 
 #endif

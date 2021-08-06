@@ -52,7 +52,7 @@ typedef struct Trapframe {
     uint64_t sSepc;
     uint64_t sStval;
     uint64_t sScaues;
-}Trapframe_t;
+}__attribute__((packed, aligned(8))) Trapframe_t;
 
 
 void fnDispatchInterrupt(Trapframe_t* _tf);
