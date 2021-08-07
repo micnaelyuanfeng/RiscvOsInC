@@ -16,7 +16,7 @@ void _handlerSupervisorTimer(void* _tf, ...){
     RegisterAccess.readCcyle(&TimerControl.cycle);
  
     if (TimerControl.tick == 100) TimerControl.tick = 0;
-
+  
     TimerControl.tick += 1;
 
     fnSetTimerInterval();

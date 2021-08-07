@@ -22,6 +22,12 @@ void kentry(){
     fnCoremap_init();
     fnTrapInit();
     fnTimerInit();
+
+    fnMallocTest();
+    fnFreeTest();
+    // fnInterruptTest();
+    // fnGreetingPrint();
+
    
     while(1);
 }

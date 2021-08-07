@@ -19,7 +19,7 @@ void fnTimerInit(){
 void fnSetTimerInterval(){
 
     register uint64_t eid asm("x17") = 0 ;
-    register uint64_t arg0 asm("x10") = TimerControl.cycle + 100000;
+    register uint64_t arg0 asm("x10") = TimerControl.cycle + TIMER_BASE;
     register uint64_t arg1 asm("x11") = 0;
     register uint64_t arg2 asm("x12") = 0;
 

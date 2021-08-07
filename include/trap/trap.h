@@ -62,4 +62,6 @@ void fnDispatchExtrInterrupt(Trapframe_t* _tf);
 void fnTrapInit();
 uint8_t fnTrapTypeParse(uint64_t _sscauseValue);
 
+void fnInterruptTest();
+
 #endif

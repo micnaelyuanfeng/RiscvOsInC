@@ -9,11 +9,11 @@
 extern RegisterRoute_t RegisterAccess;
 extern void __trap_enter();
 
-_intrHandler TrapVecTbl[];
-// _intrHandler ExcpVecTbl[ExceptionUnknown];
+_intrHandler TrapVecTbl[InterruptUnknown];
+_intrHandler ExcpVecTbl[ExceptionUnknown];
 
 void fnBuildIntrVetTbl(){
-    TrapVecTbl[SupervisorSoft] = _handlerEbp;
+    ExcpVecTbl[Breakpoint] = _handlerEbp;
     TrapVecTbl[SupervisorTimer] = _handlerSupervisorTimer;
 }
 
@@ -38,6 +38,7 @@ void fnTrapInit(){
 }
 
 void fnDispatchInterrupt(Trapframe_t* _tf){
+    printf("Trap Cause is 0x%x\n", _tf->sScaues);
     switch(fnTrapTypeParse(_tf->sScaues)){
         case TrapException:
         {
@@ -70,15 +71,31 @@ void fnDispatchInterrupt(Trapframe_t* _tf){
 // }
 
 uint8_t fnTrapTypeParse(uint64_t _sscauseValue){
-    uint64_t trapCode = _sscauseValue & !(1 << 63);
+    uint64_t trapCode = _sscauseValue & (1 << 63);
 
     return trapCode >> 63;
 }
 
 void fnDispatchSoftInterrupt(Trapframe_t* _tf){
-    TrapVecTbl[_tf->sScaues]((void*)_tf);
+    ExcpVecTbl[_tf->sScaues & 0xF]((void*)_tf);
 }
 
 void fnDispatchExtrInterrupt(Trapframe_t* _tf){
     TrapVecTbl[_tf->sScaues]((void*)_tf);
+}
+
+void fnInterruptTest(){
+    printf("|=============================$!\n");
+    printf("|====>    Interrupt Test Starts\n");
+    __asm__ volatile(
+        "ebreak"
+    );
+
+    printf("|====>    EBREAK Test Pass\n");
+
+extern DeviceTimer_t TimerControl;
+    while(TimerControl.tick < 2) printf("0x%x", TimerControl.tick);
+    printf("|====>    Timer Interrupt Test Pass\n");
+    printf("|====>    Interrupt Test Ends\n");
+    printf("|=============================$!\n");
 }

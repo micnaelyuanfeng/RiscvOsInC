@@ -14,7 +14,7 @@ uint64_t _KernelStart = 0x0;
 
 #endif
 
-typedef void (*_kmalloc)(void* info, ...);
+typedef uint64_t (*_kmalloc)(void* info, ...);
 typedef void (*_kfree)(void* info, ...);
 typedef void (*_coremapInit)();
 typedef void (*_coremapDump)();
@@ -42,9 +42,13 @@ typedef struct CoreMemBlkInfo {
 
 void fnCoremap_init();
 
-void __kmalloc(void* info, ...);
+uint64_t __kmalloc(void* info, ...);
 void __kfree(void* info, ...);
 void __coremapInit();
 void __coremapDump();
+
+
+void fnMallocTest();
+void fnFreeTest();
 
 #endif
