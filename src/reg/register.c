@@ -48,7 +48,7 @@ void __flushTlb(uint64_t* volatile retValue){
 void __readCcycle(uint64_t* volatile retvalue){
     __asm__ volatile (
         // "csrrs %0, cycle, x0"
-        "csrr %0, 0xc01"
+        "rdtime %0"
             : "=r"(*retvalue)
             :
             :"memory"

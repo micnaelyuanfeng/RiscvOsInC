@@ -25,8 +25,8 @@ void kentry(){
 
     fnMallocTest();
     fnFreeTest();
-    // fnInterruptTest();
-    // fnGreetingPrint();
+    fnInterruptTest();
+    fnGreetingPrint();
 
    
     while(1);

@@ -38,7 +38,6 @@ void fnTrapInit(){
 }
 
 void fnDispatchInterrupt(Trapframe_t* _tf){
-    printf("Trap Cause is 0x%x\n", _tf->sScaues);
     switch(fnTrapTypeParse(_tf->sScaues)){
         case TrapException:
         {
@@ -71,7 +70,7 @@ void fnDispatchInterrupt(Trapframe_t* _tf){
 // }
 
 uint8_t fnTrapTypeParse(uint64_t _sscauseValue){
-    uint64_t trapCode = _sscauseValue & (1 << 63);
+    uint64_t trapCode = _sscauseValue & (1UL << 63);
 
     return trapCode >> 63;
 }
@@ -94,7 +93,7 @@ void fnInterruptTest(){
     printf("|====>    EBREAK Test Pass\n");
 
 extern DeviceTimer_t TimerControl;
-    while(TimerControl.tick < 2) printf("0x%x", TimerControl.tick);
+    while(TimerControl.tick < 2);
     printf("|====>    Timer Interrupt Test Pass\n");
     printf("|====>    Interrupt Test Ends\n");
     printf("|=============================$!\n");

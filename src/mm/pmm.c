@@ -44,7 +44,7 @@ uint64_t __kmalloc(void* info, ...){
     }else{
         CoreMemBlkInfo_t* pInfo = (CoreMemBlkInfo_t*)info;
 
-        memAddr = CoreMapControl.kernelStartAddr + (CoreMapControl.pageUsed << 12);
+        memAddr = CoreMapControl.coremapStartAddr + (CoreMapControl.pageUsed << 12);
     
         CoreMapControl.pageUsed += pInfo->numOfPage;
     }
@@ -101,16 +101,16 @@ void fnFreeTest(){
 
     blkInfo.numOfPage = 1;
     CoreMapControl.kfree(&blkInfo);
-    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.kernelStartAddr + (CoreMapControl.pageUsed << 12));
+    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.coremapStartAddr + (CoreMapControl.pageUsed << 12));
     blkInfo.numOfPage++;
     CoreMapControl.kfree(&blkInfo);
-    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.kernelStartAddr + (CoreMapControl.pageUsed << 12));
+    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.coremapStartAddr + (CoreMapControl.pageUsed << 12));
     blkInfo.numOfPage++;
     CoreMapControl.kfree(&blkInfo);
-    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.kernelStartAddr + (CoreMapControl.pageUsed << 12));
+    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.coremapStartAddr + (CoreMapControl.pageUsed << 12));
     blkInfo.numOfPage++;
     CoreMapControl.kfree(&blkInfo);
-    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.kernelStartAddr + (CoreMapControl.pageUsed << 12));
+    printf("|====>      Free %d page(s), mem physical address is 0x%x\n", blkInfo.numOfPage, CoreMapControl.coremapStartAddr + (CoreMapControl.pageUsed << 12));
     printf("|====>    Free Test Starts\n");
     printf("|=============================$!\n");
 }
