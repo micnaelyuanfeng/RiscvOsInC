@@ -2,7 +2,8 @@ OUTPUT_ARCH(riscv)
 
 ENTRY(_start)
 
-BASE_ADDRESS = 0x80200000;
+/* BASE_ADDRESS = 0x80200000; */
+BASE_ADDRESS = 0xffffffff80200000;
 
 SECTIONS
 {
@@ -40,6 +41,6 @@ SECTIONS
     }
 
     . = ALIGN(4096);
-
+    _bss_end = .;
     __KernelEndAddr = .;
 }
