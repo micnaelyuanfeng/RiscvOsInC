@@ -27,7 +27,6 @@ void kentry(){
     fnFreeTest();
     fnInterruptTest();
     fnGreetingPrint();
-
    
     while(1);
 }

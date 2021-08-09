@@ -14,13 +14,13 @@ void fnCoremap_init(){
     CoreMapControl.kmalloc = __kmalloc;
 
     CoreMapControl.coremapInit();
-    printf("|=============================$!\n");
-    printf("|====>    Physical Memory Info\n");
-    printf("|====>      Kernel Start Addr is 0x%x\n", CoreMapControl.kernelStartAddr);
-    printf("|====>      Kernel End Addr is 0x%x\n", CoreMapControl.kernelEndAddr);
-    printf("|====>      Coremap Start Addr is 0x%x\n", CoreMapControl.coremapStartAddr);
-    printf("|====>      Coremap Capacity is %d\n", CoreMapControl.coremapCapacityInPageSize);
-    printf("|=============================$!\n");
+    // printf("|=============================$!\n");
+    // printf("|====>    Physical Memory Info\n");
+    // printf("|====>      Kernel Start Addr is 0x%x\n", CoreMapControl.kernelStartAddr);
+    // printf("|====>      Kernel End Addr is 0x%x\n", CoreMapControl.kernelEndAddr);
+    // printf("|====>      Coremap Start Addr is 0x%x\n", CoreMapControl.coremapStartAddr);
+    // printf("|====>      Coremap Capacity is %d\n", CoreMapControl.coremapCapacityInPageSize);
+    // printf("|=============================$!\n");
 }
 
 void __coremapInit(){

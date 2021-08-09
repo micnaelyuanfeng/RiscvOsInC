@@ -5,7 +5,7 @@ typedef void (*_readSstatus)();
 typedef void (*_writeSstatus)();
 typedef void (*_readStap)();
 typedef void (*_writeSatp)();
-typedef void (*_flushTlb)();
+// typedef void (*_flushTlb)();
 typedef void (*_readSscratch)();
 typedef void (*_writeSscratch)();
 typedef void (*_readStvec)();
@@ -17,7 +17,7 @@ typedef void(*_setCcycle)();
 
 void __readSstatus(uint64_t* volatile retValue);
 void __readSatp(uint64_t* volatile retValue);
-void __flushTlb(uint64_t* volatile retValue);
+// void __flushTlb(uint64_t* volatile retValue);
 void __readSscratch(uint64_t* volatile retValue);
 void __readStvec(uint64_t* volatile retValue);
 void __readSie(uint64_t* volatile retValue);

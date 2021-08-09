@@ -18,6 +18,6 @@ void _handlerSupervisorTimer(void* _tf, ...){
     if (TimerControl.tick == 100) TimerControl.tick = 0;
   
     TimerControl.tick += 1;
-
+    
     fnSetTimerInterval();
 }
