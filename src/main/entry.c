@@ -6,10 +6,11 @@
 #include "trap.h"
 #include "handlers.h"
 #include "coremap.h"
+#include "vm.h"
 #include "printf.h"
 
 extern uint8_t PrintBuf[];
-
+extern VMControl_t VmControl;
 /**
  * All funtins aruments passphrease use
  * x^2 + y^2 = 4
@@ -20,6 +21,7 @@ void kentry(){
     fnUartHwInit();
     fnRegisterAccessInit();
     fnCoremap_init();
+    fnVmInit();
     fnTrapInit();
     fnTimerInit();
 
@@ -27,6 +29,8 @@ void kentry(){
     fnFreeTest();
     fnInterruptTest();
     fnGreetingPrint();
+
+    VmControl.buildPageTable();
    
     while(1);
 }

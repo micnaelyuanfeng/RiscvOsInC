@@ -7,7 +7,7 @@
     .section .text.init
     .globl _start
 _start:
-    # call _clear_bss
+    call _clear_bss
 
     lui t0, %hi(_root_page_table)
     li t1, 0xffffffff00000000
@@ -27,12 +27,11 @@ _start:
     addi sp, sp, %lo(_main_stack_top)
     # la sp, _main_stack_top
 
-    call _clear_bss
-
 loop:
     lui t0, %hi(kentry)
     addi t0, t0, %lo(kentry)
     jr t0
+    # jal kentry
 
 2:
     wfi
@@ -59,11 +58,11 @@ _main_stack_top:
     .align 12
     .section .data
 _root_page_table:
-    .quad (0x10000 << 10) | 0xcf
+    .quad (0x00000 << 10) | 0xcf
     .quad 0
     .quad (0x80000 << 10) | 0xcf
     .zero 505 * 8
-    .quad (0x10000 << 10) | 0xcf
+    .quad (0x00000 << 10) | 0xcf
     .quad 0
     .quad (0x80000 << 10) | 0xcf
     .quad 0

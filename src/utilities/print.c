@@ -151,7 +151,8 @@ void fnStdoutInit(void* __putP, void (*__putF)(void*, uint8_t)){
 
 void fnGreetingPrint(){
     printf("\n\n");
-    printf("|***------ Profiler Kernel V1.01 \n");
-    printf("|***------ nullptr()\n");
-    printf("|***------ Hello World        \n");
+    printf("|=============================$!\n");
+    printf("|====>     Profiler Kernel V1.01 \n");
+    printf("|====>     nullptr()\n");
+    printf("|====>     Hello World        \n");
 }
