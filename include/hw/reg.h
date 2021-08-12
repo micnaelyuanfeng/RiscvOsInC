@@ -5,11 +5,12 @@ typedef void (*_readSstatus)();
 typedef void (*_writeSstatus)();
 typedef void (*_readStap)();
 typedef void (*_writeSatp)();
-// typedef void (*_flushTlb)();
+typedef void (*_flushTlb)();
 typedef void (*_readSscratch)();
 typedef void (*_writeSscratch)();
 typedef void (*_readStvec)();
 typedef void (*_writeStvec)();
+typedef void (*_writeSatp)();
 typedef void (*_readSie)();
 typedef void (*_writeSie)();
 typedef void (*_readCcyle)();
@@ -17,12 +18,12 @@ typedef void(*_setCcycle)();
 
 void __readSstatus(uint64_t* volatile retValue);
 void __readSatp(uint64_t* volatile retValue);
-// void __flushTlb(uint64_t* volatile retValue);
+void __flushTlb();
 void __readSscratch(uint64_t* volatile retValue);
 void __readStvec(uint64_t* volatile retValue);
 void __readSie(uint64_t* volatile retValue);
 void __readCcycle(uint64_t* retValue);
-
+void __writeSatp(uint64_t volatile value);
 void __writeSscratch(uint64_t volatile value);
 void __writeStvec(uint64_t volatile value);
 void __writeSie(uint64_t volatile value);
@@ -43,6 +44,8 @@ typedef struct RegisterRoute{
     _writeStvec    writeStvec;
     _writeSie      writeSie;
     _writeSstatus  writeSstatus;
+    _writeSatp     writeSatp;
+    _flushTlb      flushTlb;
 }RegisterRoute_t;
 
 void fnRegisterAccessInit();

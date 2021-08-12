@@ -40,11 +40,11 @@ enum PageTableEntryBits {
 
 typedef uint64_t (*__kmap)();
 typedef bool (*__kunmap)();
-typedef void (*__flushTlb)();
 typedef void (*__buildPageTable)();
 typedef void (*__updatePageTable)();
 typedef void (*__registerPageTable)();
 typedef void (*__ptClone)();
+typedef void (*__buildRootPageTable)();
 
 typedef struct VMControl {
     __kmap kmap;
@@ -53,19 +53,22 @@ typedef struct VMControl {
     __updatePageTable updatePageTable;
     __registerPageTable registerPageTable;
     __ptClone ptClone;
+    __buildRootPageTable buildRootPageTable;
 
     uint64_t ptVa;
     uint64_t ptPa;
 }VMControl_t;
 
 void fnVmInit();
+void fnPtWalk();
 
 void _buildPageTable();
 void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level);
 void _registerPageTable();
-// void _flushTlb();
+void _buildRootPageTable();
 uint64_t _kmap(uint64_t _pa);
 bool _kunmap(uint64_t _va);
+
 
 
 #endif
