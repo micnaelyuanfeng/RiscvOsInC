@@ -29,7 +29,7 @@ void __coremapInit(){
 
     CoreMapControl.kernelStartAddr = (uint64_t)__KernelStartAddr;
     CoreMapControl.kernelEndAddr = (uint64_t)__KernelEndAddr;
-    CoreMapControl.coremapStartAddr = (uint64_t)__KernelEndAddr + PAGE_SIZE;
+    CoreMapControl.coremapStartAddr = ((uint64_t)__KernelEndAddr + PAGE_SIZE) & 0x00000000FFFFFFFF;
     CoreMapControl.coremapCapacityInPageSize = (uint64_t) (256 << 20) / PAGE_SIZE - 1;
     CoreMapControl.pageUsed = 0;
 }

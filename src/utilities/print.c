@@ -155,4 +155,5 @@ void fnGreetingPrint(){
     printf("|====>     Profiler Kernel V1.01 \n");
     printf("|====>     nullptr()\n");
     printf("|====>     Hello World        \n");
+    printf("|=============================$!\n");
 }

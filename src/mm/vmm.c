@@ -1,10 +1,12 @@
 #include "types.h"
 #include "coremap.h"
+#include "reg.h"
 #include "vm.h"
 #include "printf.h"
 
 extern VMControl_t VmControl;
 extern CoreMapCntl_t CoreMapControl;
+extern RegisterRoute_t RegisterAccess;
 
 uint64_t _kmap(uint64_t _pa){
     return true;
@@ -19,9 +21,45 @@ void fnVmInit(){
     VmControl.kmap = _kmap;
     VmControl.kunmap = _kunmap;
     VmControl.registerPageTable = _registerPageTable;
+    VmControl.buildRootPageTable = _buildRootPageTable;
     VmControl.ptVa = 0;
     VmControl.ptPa = 0;
 }
+
+void _buildRootPageTable(){
+    uint64_t kernelStart = CoreMapControl.kernelStartAddr;
+    uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
+
+    uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE + 30; 
+
+    printf("Pages are %d\n", numOfKernelPages);
+
+    CoreMemBlkInfo_t blkInf = {0};
+
+    blkInf.numOfPage = 1;
+
+    uint64_t ptPa = CoreMapControl.kmalloc(&blkInf);
+
+    VmControl.ptPa = ptPa;
+
+    VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
+
+    uint64_t paStart = CoreMapControl.coremapStartAddr;
+
+    uint64_t kernekStartPa = kernelStart & ~0xFFFFFFFF00000000;
+
+    printf("Page Table  0x%x%x\n", VmControl.ptPa >> 32 & 0xFFFFFFFF, VmControl.ptPa & 0xFFFFFFFF);
+    printf("Kernel Starts 0x%x%x\n", kernelStart >> 32 & 0xFFFFFFFF, kernelStart & 0xFFFFFFFF);
+    printf("Kernel Starts 0x%x%x\n", kernekStartPa >> 32 & 0xFFFFFFFF, kernekStartPa & 0xFFFFFFFF);
+
+    for (uint64_t i = 0; i < numOfKernelPages; i++){
+        _updatePageTable(kernelStart, kernekStartPa, PT_LEVEL - 1);
+
+        kernelStart += PAGE_SIZE;
+        kernekStartPa += PAGE_SIZE;
+    }
+}
+
 
 void _buildPageTable(){
     CoreMemBlkInfo_t blkInf = {0};
@@ -32,11 +70,7 @@ void _buildPageTable(){
 
     VmControl.ptPa = ptPa;
 
-    uint64_t ptVa = 0xFFFFFFFF00000000 | ptPa;
-
-    VmControl.ptVa = ptVa;
-
-    // printf("Allocte 0x%x%x\n", ptVa >> 31 & 0xFFFFFFFF, ptVa & 0xFFFFFFFF);
+    VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
 
     _updatePageTable(VmControl.ptVa, VmControl.ptPa, PT_LEVEL - 1);
 }
@@ -58,10 +92,6 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
     uint64_t pa = 0UL;
     uint64_t* nextLevelPtVaEntryVa = (uint64_t*)&root[vpn[2]];
 
-    printf("%d\n",vpn[2]);
-    printf("%d\n",vpn[1]);
-    printf("%d\n",vpn[0]);
-
     for (int i = level - 1; i >= 0; i--){
         if(!(*nextLevelPtVaEntryVa) & Valid){
             CoreMemBlkInfo_t blkInf = {0};
@@ -72,7 +102,7 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
             *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
         }
 
-        uint64_t* nextLevelPtVa = (uint64_t*)(pa | 0xFFFFFFFF00000000);
+        uint64_t* nextLevelPtVa = (uint64_t*)(((*nextLevelPtVaEntryVa) >> 1 << 3) | 0xFFFFFFFF00000000);
 
         nextLevelPtVaEntryVa = &nextLevelPtVa[vpn[i]];
     }
@@ -83,7 +113,22 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
         Valid | ReadWriteExecute;
 
     *nextLevelPtVaEntryVa = pageTableEntryVal;
-    
+
+}
+
+void _registerPageTable(){
+    printf("0x%x%x\n", VmControl.ptPa >> 32, VmControl.ptPa);
+    uint64_t value = ((8UL << 60) | (VmControl.ptPa >> 12));
+
+    RegisterAccess.writeSatp(value);
+    RegisterAccess.flushTlb();
+}
+
+void fnPtWalk(){
+    uint64_t* root = (uint64_t*)VmControl.ptVa;
+
+    printf("Page Table PA 0x%x%x\n", VmControl.ptPa >> 32, VmControl.ptPa);
+
     for(int i = 0; i <= 511; i++){
         if(root[i] & Valid){
             printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
@@ -104,15 +149,6 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
             }
         }
     }
-
-}
-
-void _registerPageTable(){
-    
-}
-
-void fnPtWalk(){
-
 }
 
 void fnMapPaToVaTest(){

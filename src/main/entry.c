@@ -23,14 +23,19 @@ void kentry(){
     fnCoremap_init();
     fnVmInit();
     fnTrapInit();
+    
+    VmControl.buildRootPageTable();
+    VmControl.registerPageTable();
+
+    // fnPtWalk();
+    
     fnTimerInit();
 
     fnMallocTest();
     fnFreeTest();
     fnInterruptTest();
+    
     fnGreetingPrint();
-
-    VmControl.buildPageTable();
-   
-    while(1);
+    
+    while(1) ;
 }

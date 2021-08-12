@@ -18,6 +18,9 @@ void fnRegisterAccessInit(){
     RegisterAccess.writeStvec = __writeStvec;
     RegisterAccess.writeSstatus = __writeSstatus;
 
+    RegisterAccess.writeSatp = __writeSatp;
+    RegisterAccess.flushTlb  = __flushTlb;
+
 }
 
 void __readSstatus(uint64_t* volatile retValue){
@@ -39,10 +42,9 @@ void __readSatp(uint64_t* volatile retValue){
 }
 
 void __flushTlb(uint64_t* volatile retValue){
-    // __asm__ volatile (
-    //     "csrr $0, sstatus"
-    //     : "=r"(*retValue)
-    // );
+    __asm__ volatile (
+        "sfence.vma"
+    );
 }
 
 void __readCcycle(uint64_t* volatile retvalue){
@@ -87,6 +89,15 @@ void __readSie(uint64_t* volatile retValue){
         "csrr %0, sie"
         : "=r"(*retValue)
         :
+        :"memory"
+    );
+}
+
+void __writeSatp(uint64_t value){
+    __asm__ volatile (
+        "csrw satp, %0"
+        :
+        : "r"(value)
         :"memory"
     );
 }
