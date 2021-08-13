@@ -51,7 +51,7 @@ _clear_bss:
     .section .bss.stack
     .globl _main_stack
 _main_stack:
-    .space 4096 * 10
+    .space 4096 * 40
     .globl _main_stack_top
 _main_stack_top:
 

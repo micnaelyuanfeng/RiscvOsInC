@@ -26,7 +26,7 @@ void kentry(){
 
     fnTrapInit();
 
-    // fnPtWalk();
+    fnPtWalk();
     
     fnTimerInit();
 

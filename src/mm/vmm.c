@@ -33,7 +33,7 @@ void _buildRootPageTable(){
     uint64_t kernelStart = CoreMapControl.kernelStartAddr;
     uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
 
-    uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE + CoreMapControl.coremapCapacityInPageSize; 
+    uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE; 
 
     CoreMemBlkInfo_t blkInf = {0};
 
@@ -44,6 +44,8 @@ void _buildRootPageTable(){
     VmControl.ptPa = ptPa;
 
     VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
+
+    _updatePageTable(VmControl.ptVa, VmControl.ptPa, 2);
 
     uint64_t paStart = CoreMapControl.coremapStartAddr;
 
@@ -101,6 +103,8 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
             pa = CoreMapControl.kmalloc(&blkInf);
 
             *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
+    
+            _updatePageTable(0xFFFFFFFF00000000UL | pa, pa, 2);
         }
 
         uint64_t ptEntryValue = *nextLevelPtVaEntryVa;
@@ -119,8 +123,14 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
     *nextLevelPtVaEntryVa = pageTableEntryVal;
 }
 
-void _mallocAndMap(){
+void _mallocAndMap(uint64_t _sizeInBytes){
+    uint8_t numOfPage = (_sizeInBytes / PAGE_SIZE == 0) ? 
+                            1 : (_sizeInBytes /PAGE_SIZE + (_sizeInBytes % PAGE_SIZE == 0) ? 0 : 1);
     
+    
+    // for(uint32_t i = 0; i < numOfPage; i++){
+    //     CoreMapControl.kmalloc();
+    // }
 }
 
 void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va){
@@ -168,6 +178,10 @@ void fnPtWalk(){
 
 void fnMapPaToVaTest(){
     
+}
+
+void fnVMTest(){
+
 }
 
 void fnBuildRootPageTable(){
