@@ -22,10 +22,9 @@ void kentry(){
     fnRegisterAccessInit();
     fnCoremap_init();
     fnVmInit();
+    fnBuildRootPageTable();
+
     fnTrapInit();
-    
-    VmControl.buildRootPageTable();
-    VmControl.registerPageTable();
 
     // fnPtWalk();
     

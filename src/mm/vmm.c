@@ -33,7 +33,7 @@ void _buildRootPageTable(){
     uint64_t kernelStart = CoreMapControl.kernelStartAddr;
     uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
 
-    uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE + 20; 
+    uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE + CoreMapControl.coremapCapacityInPageSize; 
 
     CoreMemBlkInfo_t blkInf = {0};
 
@@ -89,15 +89,10 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
         _ptPa >> 30 & PPN_MASK_L3
     };
 
-    // printf("%d\n", vpn[0]);
-    // printf("%d\n", vpn[1]);
-    // printf("%d\n", vpn[2]);
-
     uint64_t* root = (uint64_t*)VmControl.ptVa;
     uint64_t pa = 0UL;
     uint64_t* nextLevelPtVaEntryVa = (uint64_t*)&root[vpn[2]];
-    // printf("%d\n", vpn[2]);
-    // printf("0x%x%x\n", *(nextLevelPtVaEntryVa));
+
     for (int i = level - 1; i >= 0; i--){
         if(!(*nextLevelPtVaEntryVa) & Valid){
             CoreMemBlkInfo_t blkInf = {0};
@@ -129,10 +124,8 @@ void _mallocAndMap(){
 }
 
 void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va){
+    
     uint64_t pa = _va - 0xFFFFFFFF00000000UL;
-
-    printf("va 0x%x%x\n", _va >> 32, _va);
-    printf("pa 0x%x%x\n", pa >> 32, pa);
 
     _updatePageTable(_va, pa, PT_LEVEL - 1);
 

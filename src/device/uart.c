@@ -43,8 +43,8 @@ void fnUartPutChar(uint8_t __c){
 }
 
 void fnUartPutCharWrap(void* __dummy, uint8_t __c){
-    // fnUartPutChar(__c);
-    fnConsolePucharSbi(__c);
+    fnUartPutChar(__c);
+    // fnConsolePucharSbi(__c);
 }
 
 uint8_t fnUartGetChar() {
