@@ -17,6 +17,13 @@
 #define PPN_MASK_L2 0x1ff
 #define PPN_MASK_L3 0x3ffffff
 
+#define PPN(addr) (addr) >> 1UL << 3UL
+#define P2V(addr) (addr) | 0xFFFFFFFF00000000
+
+#define V2P(add) ({ \
+    (addr)UL - 0xFFFFFFFF00000000 \
+})
+
 enum PageTableEntryBits {
     Valid = 1 << 0,
     Read = 1 << 1,
@@ -45,6 +52,7 @@ typedef void (*__updatePageTable)();
 typedef void (*__registerPageTable)();
 typedef void (*__ptClone)();
 typedef void (*__buildRootPageTable)();
+typedef void (*__mapRange)( uint64_t* _ptVa, ...);
 
 typedef struct VMControl {
     __kmap kmap;
@@ -54,6 +62,7 @@ typedef struct VMControl {
     __registerPageTable registerPageTable;
     __ptClone ptClone;
     __buildRootPageTable buildRootPageTable;
+    __mapRange mapRange;
 
     uint64_t ptVa;
     uint64_t ptPa;
@@ -61,14 +70,15 @@ typedef struct VMControl {
 
 void fnVmInit();
 void fnPtWalk();
+void fnBuildRootPageTable();
 
 void _buildPageTable();
 void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level);
 void _registerPageTable();
 void _buildRootPageTable();
+void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va);
+
 uint64_t _kmap(uint64_t _pa);
 bool _kunmap(uint64_t _va);
-
-
 
 #endif
