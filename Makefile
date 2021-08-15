@@ -8,7 +8,8 @@ INCLUDES := -I ./include
 INCLUDES += -I ./include/mem
 INCLUDES += -I ./include/hw 
 INCLUDES += -I ./include/device
-INCLUDES += -I ./include/trap 
+INCLUDES += -I ./include/trap
+INCLUDES += -I ./include/thread 
 
 CC := riscv64-unknown-elf-gcc
 CASM := riscv64-unknown-elf-as

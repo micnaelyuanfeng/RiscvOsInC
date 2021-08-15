@@ -3,6 +3,7 @@
 #include "device.h"
 #include "coremap.h"
 #include "vm.h"
+#include "trap.h"
 #include "thread.h"
 #include "printf.h"
 

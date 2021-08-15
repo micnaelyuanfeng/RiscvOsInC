@@ -15,3 +15,18 @@ void fnThreadControlInit()
     ThreadControl.fork = _fork;
 }
 
+void _fork(){
+
+}
+
+void _exec(){
+
+}
+
+void _destroy(){
+
+}
+
+uint64_t _createContext(){
+    
+}
