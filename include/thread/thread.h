@@ -34,17 +34,17 @@ typedef struct ThreadContext{
 typedef struct Thread {
     uint64_t context;
     struct {
-        uint64_t id : 5;
+        uint64_t id : 3;
         uint64_t state : 2;
         uint64_t privillege : 3;
-        uint64_t reserved : 22;
+        uint64_t reserved : 56;
     }info;
 
     uint64_t ptVa;
     uint64_t heapVa;
     uint64_t stackVa;
     uint64_t ipiMemVa;
-}Thread_t;
+}__attribute__((packed, aligned(8))) Thread_t;
 
 void _fork();
 void _exec();
