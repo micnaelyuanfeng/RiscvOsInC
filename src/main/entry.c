@@ -33,6 +33,8 @@ void kentry(){
     fnMallocTest();
     fnFreeTest();
     fnInterruptTest();
+
+    fnMallocMapTest();
     
     fnGreetingPrint();
     
