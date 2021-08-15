@@ -24,6 +24,7 @@ void fnVmInit(){
     VmControl.registerPageTable = _registerPageTable;
     VmControl.buildRootPageTable = _buildRootPageTable;
     VmControl.mapRange = _mapRange;
+    VmControl.updatePageTable = _updatePageTable;
 
     VmControl.ptVa = 0;
     VmControl.ptPa = 0;
@@ -176,9 +177,6 @@ void fnPtWalk(){
     }
 }
 
-void fnMapPaToVaTest(){
-    
-}
 
 void fnVMTest(){
 
@@ -188,4 +186,30 @@ void fnBuildRootPageTable(){
     VmControl.buildRootPageTable();
     VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
     VmControl.registerPageTable();
+}
+
+void fnMallocMapTest(){
+    printf("|=============================$!\n");
+    printf("|====>    Malloc and Map Test Starts\n");
+    CoreMemBlkInfo_t blkInf = {0};
+    blkInf.numOfPage = 1;
+    
+    uint64_t pa = CoreMapControl.kmalloc(&blkInf);
+    // printf("%x%x\n", va >> 32, va);
+    uint64_t va = P2V(pa);
+    VmControl.updatePageTable(va, pa, PT_LEVEL - 1);
+
+    uint64_t* pMem = (uint64_t*)va;
+
+    *pMem = 0xDEADBEEF;
+    
+    if(*pMem == 0xDEADBEEF){
+        printf("|====>    Write Data Match and Test Pass\n");
+    }
+
+    printf("|====>    Malloc and Map Test Ends\n");
+    printf("|=============================$!\n");
+}
+
+void fnFreeMapTest(){
 }
