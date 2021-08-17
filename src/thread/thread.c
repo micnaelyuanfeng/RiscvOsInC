@@ -53,8 +53,6 @@ uint64_t _createContext(){
     uint64_t threadContextPa = CoreMapControl.kmalloc(&blkInf);
     uint64_t threadContextVa = P2V(threadContextPa);
     VmControl.updatePageTable(threadContextVa, threadContextPa, PT_LEVEL - 1);
-
-    printf("haha1\n");
     
     ThreadContextContent_t* pContextContent = (ThreadContextContent_t*)((uint8_t*)threadContextVa + _sizeof(Thread_t));
 
@@ -71,8 +69,6 @@ extern void __trap_exit();
 extern void testFunc();
     pContextContent->tf.sSepc = (uint64_t)testFunc;
 
-    printf("haha2\n");
-
     uint64_t sstatus = 0;
     RegisterAccess.readSstatus(&sstatus);
 
@@ -81,12 +77,11 @@ extern void testFunc();
     sstatus = sstatus & ~(1UL << 1);
 
     pContextContent->tf.sStatus = sstatus;
-    printf("haha3\n");
+
     uint8_t* ptr = (uint8_t*)(stackVa - _sizeof(ThreadContextContent_t));
 
     memcpy(ptr, (uint8_t*)pContextContent, _sizeof(ThreadContextContent_t));
 
-    printf("haha4\n");
     Thread_t* pThread = (Thread_t*)threadContextVa;
 
     pThread->context = (uint64_t)ptr;
@@ -97,7 +92,7 @@ extern void __switchTo(uint64_t a, uint64_t b);
     uint64_t currentContextPa = CoreMapControl.kmalloc(&blkInf);
     uint64_t currentContextVa = P2V(currentContextPa);
     VmControl.updatePageTable(currentContextVa, currentContextPa, PT_LEVEL - 1);
-    printf("haha5\n");
+
     __switchTo((uint64_t)&currentContextVa, (uint64_t)&ptr);
 
 }
