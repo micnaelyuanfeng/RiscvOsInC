@@ -195,7 +195,6 @@ void fnMallocMapTest(){
     blkInf.numOfPage = 1;
     
     uint64_t pa = CoreMapControl.kmalloc(&blkInf);
-    // printf("%x%x\n", va >> 32, va);
     uint64_t va = P2V(pa);
     VmControl.updatePageTable(va, pa, PT_LEVEL - 1);
 

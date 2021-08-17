@@ -25,11 +25,11 @@ typedef struct ThreadContextContent{
     uint64_t satp;
     uint64_t s[12];
     Trapframe_t tf;
-}ThreadContextContent_t;
+}__attribute__((packed, aligned(8))) ThreadContextContent_t;
 
 typedef struct ThreadContext{
     uint64_t contextAddt;
-}ThreadContext_t;
+}__attribute__((packed, aligned(8))) ThreadContext_t;
 
 typedef struct Thread {
     uint64_t context;

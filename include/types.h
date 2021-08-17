@@ -20,6 +20,4 @@ enum PayloadSzie {
     _DWord = 3,
 };
 
-
-
 #endif

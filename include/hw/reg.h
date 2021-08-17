@@ -14,7 +14,7 @@ typedef void (*_writeSatp)();
 typedef void (*_readSie)();
 typedef void (*_writeSie)();
 typedef void (*_readCcyle)();
-typedef void(*_setCcycle)();
+typedef void (*_setCcycle)();
 
 void __readSstatus(uint64_t* volatile retValue);
 void __readSatp(uint64_t* volatile retValue);
