@@ -30,12 +30,14 @@ void kentry(){
     fnTrapInit();
 
     // fnPtWalk();
-    
+    // uint64_t a;
+    // VmControl.ptClone(&a);
     // fnTimerInit();
 
+    // printf("hello\n");
     fnMallocTest();
     fnFreeTest();
-    // fnInterruptTest();
+    // // fnInterruptTest();
 
     fnMallocMapTest();
     
@@ -45,5 +47,5 @@ void kentry(){
 
     ThreadControl.createContext();
 
-    while(1) ;
+    while(1);
 }
