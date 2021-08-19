@@ -1,8 +1,10 @@
 #ifndef _LIB_H_
 #define _LIB_H_
 
-#define _sizeof(type)   \
-    (char*)(&(type) + 1) - (char*)(&(type))
+#define _sizeof(type) ({ \
+        type var;   \
+        ((char*)(&var + 1) - (char*)(&var)); \
+    })
 
 #define _va_list  \
     (void*)
