@@ -52,5 +52,6 @@ void fnTimerInit();
 void fnEnableTimerIntr();
 void fnClearTick();
 void fnAddTick();
+void fnSetTimerInterval();
 
 #endif
