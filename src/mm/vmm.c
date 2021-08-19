@@ -258,14 +258,11 @@ void fnPtWalk(){
     }
 }
 
-<<<<<<< HEAD
-=======
 void fnBuildRootPageTable(){
     VmControl.buildRootPageTable();
     VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
     VmControl.registerPageTable();
 }
->>>>>>> refs/remotes/origin/main
 
 void fnMallocMapTest(){
     printf("|=============================$!\n");
