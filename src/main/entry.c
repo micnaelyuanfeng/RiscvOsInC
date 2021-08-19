@@ -29,23 +29,22 @@ void kentry(){
 
     fnTrapInit();
 
-    // fnPtWalk();
-    // uint64_t a;
-    // VmControl.ptClone(&a);
-    // fnTimerInit();
 
-    // printf("hello\n");
+    fnThreadControlInit();
+
+    ThreadControl.createContext();
+
+    printf("Hello World from Main thread\n");
+    
+    fnTimerInit();
     fnMallocTest();
     fnFreeTest();
-    // // fnInterruptTest();
+    fnInterruptTest();
 
     fnMallocMapTest();
     
     fnGreetingPrint();
     
-    fnThreadControlInit();
-
-    ThreadControl.createContext();
 
     while(1);
 }

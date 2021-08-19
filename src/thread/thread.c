@@ -85,13 +85,19 @@ extern void __switchTo(uint64_t a, uint64_t b);
     uint64_t currentContextPa = CoreMapControl.kmalloc(&blkInf);
     uint64_t currentContextVa = P2V(currentContextPa);
     VmControl.updatePageTable(currentContextVa, currentContextPa, PT_LEVEL - 1);
-   
+
+    uint64_t thread2ContextPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t thread2ContextVa = P2V(thread2ContextPa);
+    VmControl.updatePageTable(thread2ContextVa, thread2ContextPa, PT_LEVEL - 1);
+
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[10] = thread2ContextVa;
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[11] = threadContextVa;
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[12] = 0;
+
     VmControl.ptClone(&pContextContent->satp);
 
-    __switchTo((uint64_t)&currentContextVa, (uint64_t)&ptr);
+    __switchTo((uint64_t)&((Thread_t*)thread2ContextVa)->context, (uint64_t)&ptr);
 }
-
-
 
 uint64_t _createContextLegacy(){
     CoreMemBlkInfo_t blkInf = {0};
@@ -149,7 +155,19 @@ extern void __switchTo(uint64_t a, uint64_t b);
 
 }
 
-void testFunc(){
-    printf("Hello World\n");
-    while(1);
+void fnTestAppendArguments(uint64_t _fromThread, uint64_t _toThread, uint64_t _ptrArgs){
+    Thread_t* pThread = (Thread_t*) _toThread;
+
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[10] = _fromThread;
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[11] = _toThread;
+    ((ThreadContextContent_t*)(pThread->context))->tf.gpr[12] = _ptrArgs;
+}
+
+void testFunc(uint64_t _fromThread, uint64_t _currentThread){
+    printf("Hello World from Thread Function\n");
+
+extern void __switchTo(uint64_t a, uint64_t b);
+
+    __switchTo((uint64_t)&((Thread_t*)_currentThread)->context, (uint64_t)&((Thread_t*)_fromThread)->context);
+
 }
