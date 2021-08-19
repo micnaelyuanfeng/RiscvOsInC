@@ -24,6 +24,8 @@ void fnVmInit(){
     VmControl.registerPageTable = _registerPageTable;
     VmControl.buildRootPageTable = _buildRootPageTable;
     VmControl.mapRange = _mapRange;
+    VmControl.updatePageTable = _updatePageTable;
+    VmControl.ptClone = _ptClone;
 
     VmControl.ptVa = 0;
     VmControl.ptPa = 0;
@@ -50,10 +52,6 @@ void _buildRootPageTable(){
     uint64_t paStart = CoreMapControl.coremapStartAddr;
 
     uint64_t kernekStartPa = kernelStart & ~0xFFFFFFFF00000000;
-
-    // printf("Page Table  0x%x%x\n", VmControl.ptPa >> 32 & 0xFFFFFFFF, VmControl.ptPa & 0xFFFFFFFF);
-    // printf("Kernel Starts 0x%x%x\n", kernelStart >> 32 & 0xFFFFFFFF, kernelStart & 0xFFFFFFFF);
-    // printf("Kernel Starts 0x%x%x\n", kernekStartPa >> 32 & 0xFFFFFFFF, kernekStartPa & 0xFFFFFFFF);
 
     for (uint64_t i = 0; i < numOfKernelPages; i++){
         _updatePageTable(kernelStart, kernekStartPa, PT_LEVEL - 1);
@@ -148,6 +146,90 @@ void _registerPageTable(){
     RegisterAccess.flushTlb();
 }
 
+void _ptClone(uint64_t* _ptVa){
+    uint64_t* root = (uint64_t*)VmControl.ptVa;
+
+    CoreMemBlkInfo_t blkInf = {0};
+
+    blkInf.numOfPage = 1;
+
+    uint64_t rootPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t rootVa = 0xFFFFFFFF00000000UL | rootPa;
+    _updatePageTable(rootVa, rootPa, PT_LEVEL - 1);
+    // *_ptVa = rootVa;
+    // printf("Page Table PA 0x%x%x\n", VmControl.ptPa >> 32, VmControl.ptPa);
+    // fnPtWalk();
+
+    for(int i = 0; i <= 511; i++){
+        if(root[i] & Valid){
+            // printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+            uint64_t pdPa = CoreMapControl.kmalloc(&blkInf);
+            uint64_t pdVa = 0xFFFFFFFF00000000UL | pdPa;
+            _updatePageTable(pdVa, pdPa, PT_LEVEL - 1);
+
+            *((uint64_t*)rootVa + i) = (pdPa >> 2) | Valid;
+
+            for(int j = 0; j <= 511; j++){
+                if(ppt[j] & Valid){
+                    // printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+                    uint64_t pd2Pa = CoreMapControl.kmalloc(&blkInf);
+                    uint64_t pd2Va = 0xFFFFFFFF00000000UL | pd2Pa;
+                    _updatePageTable(pd2Va, pd2Pa, PT_LEVEL - 1);
+ 
+                    *((uint64_t*)pdVa + j) = (pd2Pa >> 2) | Valid;
+                    //  printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, *((uint64_t*)pdVa + j) >> 32, *((uint64_t*)pdVa + j));
+                    
+                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+                    for(int k = 0; k <= 511; k++){
+                        if(ppe[k] & Valid){
+                            *((uint64_t*)pd2Va + k) = ppe[k];
+                            // printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    uint64_t* root2 = (uint64_t*)rootVa;
+
+    // printf("Page Table 2 PA 0x%x%x\n", rootPa >> 32, rootPa);
+
+    uint64_t value = ((8UL << 60) | (rootPa >> 12));
+
+    *_ptVa = value;
+
+    // VmControl.ptVa = rootVa;
+    // VmControl.ptPa = rootPa;
+
+    // RegisterAccess.writeSatp(value);
+    // RegisterAccess.flushTlb();
+
+    // for(int i = 0; i <= 511; i++){
+    //     if(root2[i] & Valid){
+    //         printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root2[i] >> 32, root2[i]);
+    //         uint64_t* ppt = (uint64_t*)(((root2[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+    //         for(int j = 0; j <= 511; j++){
+    //             if(ppt[j] & Valid){
+    //                 printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+
+    //                 uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+    //                 for(int k = 0; k <= 511; k++){
+    //                     if(ppe[k] & Valid){
+    //                         printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+}
+
 
 void fnPtWalk(){
     uint64_t* root = (uint64_t*)VmControl.ptVa;
@@ -176,16 +258,33 @@ void fnPtWalk(){
     }
 }
 
-void fnMapPaToVaTest(){
-    
-}
-
-void fnVMTest(){
-
-}
-
 void fnBuildRootPageTable(){
     VmControl.buildRootPageTable();
     VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
     VmControl.registerPageTable();
+}
+
+void fnMallocMapTest(){
+    printf("|=============================$!\n");
+    printf("|====>    Malloc and Map Test Starts\n");
+    CoreMemBlkInfo_t blkInf = {0};
+    blkInf.numOfPage = 1;
+    
+    uint64_t pa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t va = P2V(pa);
+    VmControl.updatePageTable(va, pa, PT_LEVEL - 1);
+
+    uint64_t* pMem = (uint64_t*)va;
+
+    *pMem = 0xDEADBEEF;
+    
+    if(*pMem == 0xDEADBEEF){
+        printf("|====>    Write Data Match and Test Pass\n");
+    }
+
+    printf("|====>    Mallrooc and Map Test Ends\n");
+    printf("|=============================$!\n");
+}
+
+void fnFreeMapTest(){
 }
