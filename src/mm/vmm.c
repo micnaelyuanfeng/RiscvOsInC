@@ -108,7 +108,6 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
         uint64_t ptEntryValue = *nextLevelPtVaEntryVa;
 
         uint64_t* nextLevelPtVa = (uint64_t*)(P2V(PPN(ptEntryValue)));
-        // uint64_t* nextLevelPtVa = (uint64_t*)(((*nextLevelPtVaEntryVa) >> 1 << 3) | 0xFFFFFFFF00000000);
 
         nextLevelPtVaEntryVa = &nextLevelPtVa[vpn[i]];
         
@@ -125,10 +124,7 @@ void _mallocAndMap(uint64_t _sizeInBytes){
     uint8_t numOfPage = (_sizeInBytes / PAGE_SIZE == 0) ? 
                             1 : (_sizeInBytes /PAGE_SIZE + (_sizeInBytes % PAGE_SIZE == 0) ? 0 : 1);
     
-    
-    // for(uint32_t i = 0; i < numOfPage; i++){
-    //     CoreMapControl.kmalloc();
-    // }
+
 }
 
 void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va){
@@ -156,9 +152,6 @@ void _ptClone(uint64_t* _ptVa){
     uint64_t rootPa = CoreMapControl.kmalloc(&blkInf);
     uint64_t rootVa = 0xFFFFFFFF00000000UL | rootPa;
     _updatePageTable(rootVa, rootPa, PT_LEVEL - 1);
-    // *_ptVa = rootVa;
-    // printf("Page Table PA 0x%x%x\n", VmControl.ptPa >> 32, VmControl.ptPa);
-    // fnPtWalk();
 
     for(int i = 0; i <= 511; i++){
         if(root[i] & Valid){
@@ -201,33 +194,6 @@ void _ptClone(uint64_t* _ptVa){
     uint64_t value = ((8UL << 60) | (rootPa >> 12));
 
     *_ptVa = value;
-
-    // VmControl.ptVa = rootVa;
-    // VmControl.ptPa = rootPa;
-
-    // RegisterAccess.writeSatp(value);
-    // RegisterAccess.flushTlb();
-
-    // for(int i = 0; i <= 511; i++){
-    //     if(root2[i] & Valid){
-    //         printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root2[i] >> 32, root2[i]);
-    //         uint64_t* ppt = (uint64_t*)(((root2[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
-            
-    //         for(int j = 0; j <= 511; j++){
-    //             if(ppt[j] & Valid){
-    //                 printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
-
-    //                 uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
-
-    //                 for(int k = 0; k <= 511; k++){
-    //                     if(ppe[k] & Valid){
-    //                         printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 
