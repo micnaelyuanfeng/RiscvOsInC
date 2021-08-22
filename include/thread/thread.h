@@ -1,6 +1,9 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
+#define THREAD_STACK_SIZE_IN_PAGE   20
+#define THREAD_CONTEXT_SIZE_IN_PAGE 1
+
 enum ThreadStatus{
     ThreadSleep = 0,
     ThreadRunning = 1,
