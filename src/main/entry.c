@@ -32,7 +32,7 @@ void kentry(){
 
     fnThreadControlInit();
 
-    ThreadControl.createContext();
+    ThreadControl.fork();
 
     printf("Hello World from Main thread\n");
     
