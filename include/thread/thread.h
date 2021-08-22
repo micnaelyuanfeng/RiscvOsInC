@@ -16,8 +16,6 @@ typedef struct ThreadCntl {
     __fork fork;
     __exec exec;
     __destroy destroy;
-    
-    __createContext createContext;
 }ThreadCntl_t;
 
 typedef struct ThreadContextContent{
