@@ -10,6 +10,8 @@ INCLUDES += -I ./include/hw
 INCLUDES += -I ./include/device
 INCLUDES += -I ./include/trap
 INCLUDES += -I ./include/thread 
+# RISCVCOMPL := riscv64-unknown-elf-gcc
+# CFLAG := -march=rv64imafdc -O0 -nostartfiles -nostdlib -nodefaultlibs -fno-builtin -fno-exceptions -g2 -D LOG_LEVEL=LOG_LEVEL_$(LOG_LEVEL)
 
 CC := riscv64-unknown-elf-gcc
 CASM := riscv64-unknown-elf-as
@@ -17,7 +19,7 @@ CASM := riscv64-unknown-elf-as
 CFLAG := -c -g2 -O0 \
 			-nostdlib -nostartfiles -nodefaultlibs \
 			-fno-builtin -fno-exceptions \
-			-march=rv64i -mcmodel=medany
+			-march=rv64imac -mcmodel=medany
 
 OUTPUT_DIR = ./obj
 BIN_DIR = ./bin
@@ -46,6 +48,7 @@ qemu:
 		-nographic	\
 		-bios default \
 		-m 256M	\
+		-smp 2 \
 		-device loader,file=$(BIN_DIR)/$(BIN_FILE),addr=$(KERNEL_LOAD_PA)
 		
 
