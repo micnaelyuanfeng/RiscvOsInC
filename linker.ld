@@ -7,6 +7,8 @@ BASE_ADDRESS = 0xffffffff80200000;
 
 SECTIONS
 {
+    
+
     . = BASE_ADDRESS;
 
     __KernelStartAddr = .;
