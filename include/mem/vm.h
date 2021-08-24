@@ -53,6 +53,7 @@ typedef void (*__registerPageTable)();
 typedef void (*__buildRootPageTable)();
 typedef void (*__mapRange)(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va);
 typedef void (*__ptClone)(uint64_t* _ptVa);
+typedef void (*__ptMapCmdBufferMem)();
 
 typedef struct VMControl {
     __kmap kmap;
@@ -63,6 +64,7 @@ typedef struct VMControl {
     __buildRootPageTable buildRootPageTable;
     __mapRange mapRange;
     __ptClone ptClone;
+    __ptMapCmdBufferMem ptAllocAndMapCbMem;
 
     uint64_t ptVa;
     uint64_t ptPa;
@@ -81,6 +83,7 @@ void _registerPageTable();
 void _buildRootPageTable();
 void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va);
 void _ptClone(uint64_t* _ptVa);
+void _ptAllocAndMapCbMem();
 
 
 uint64_t _kmap(uint64_t _pa);

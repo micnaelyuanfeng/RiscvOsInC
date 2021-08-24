@@ -54,4 +54,11 @@ void fnClearTick();
 void fnAddTick();
 void fnSetTimerInterval();
 
+typedef struct DeviceRingBuf {
+
+}DeviceRingBuf_t;
+
+void fnWriteRb();
+void fnReadRb();
+
 #endif
