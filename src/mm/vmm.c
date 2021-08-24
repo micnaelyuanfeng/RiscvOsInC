@@ -26,6 +26,7 @@ void fnVmInit(){
     VmControl.mapRange = _mapRange;
     VmControl.updatePageTable = _updatePageTable;
     VmControl.ptClone = _ptClone;
+    VmControl.ptAllocAndMapCbMem = _ptAllocAndMapCbMem;
 
     VmControl.ptVa = 0;
     VmControl.ptPa = 0;
@@ -196,6 +197,20 @@ void _ptClone(uint64_t* _ptVa){
     *_ptVa = value;
 }
 
+void _ptAllocAndMapCbMem(){
+    uint64_t* pCmdBuffer = (uint64_t*)pCommandQueueMem;
+
+    CoreMemBlkInfo_t blkInf = {0};
+    blkInf.numOfPage = 1;
+    
+    uint64_t pa = CoreMapControl.kmalloc(&blkInf);
+    VmControl.updatePageTable((uint64_t)pCmdBuffer, pa, PT_LEVEL - 1);
+
+    uint64_t* pUtilitiesMem = (uint64_t*)pLockMemStart;
+
+    pa = CoreMapControl.kmalloc(&blkInf);
+    VmControl.updatePageTable((uint64_t)pUtilitiesMem, pa, PT_LEVEL - 1);
+}
 
 void fnPtWalk(){
     uint64_t* root = (uint64_t*)VmControl.ptVa;

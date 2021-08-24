@@ -13,11 +13,8 @@ CoreMapCntl_t CoreMapControl = {0};
 DeviceTimer_t TimerControl = {0};
 VMControl_t VmControl = {0};
 ThreadCntl_t ThreadControl = {0};
-
+DeviceRingBuf_t CmdRingMem = {0};
 
 bool procecedLock = false;
-
-uint64_t DramStart = 0x80000000;
-uint64_t KernelStart = 0x80200000;
 
 uint64_t _lockMem = 0; 

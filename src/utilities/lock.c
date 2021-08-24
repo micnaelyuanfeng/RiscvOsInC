@@ -1,12 +1,15 @@
 
 #include "types.h"
+#include "device.h"
 #include "printf.h"
 
 extern uint64_t _lockMem; 
 
 bool __acquireLock(){
+    // printf("0x%x\n", ConsoleLock);
+
     register unsigned int t0 asm("t0") = 0x1;
-    register unsigned long long a0 asm("a0") = (uint64_t)&_lockMem;
+    register unsigned long long a0 asm("a0") = (uint64_t)&ConsoleLock;
 
     __asm__ volatile(
         "amoswap.w.aq t0, t0, (a0)\n \t");
@@ -20,10 +23,10 @@ void __getLock(){
 
 void __releaseLock(){
     
-    register unsigned long long a0 asm("a0") = (uint64_t)&_lockMem;
+    register unsigned long long a0 asm("a0") = (uint64_t)&ConsoleLock;
     __asm__ volatile(
         "amoswap.w.rl x0, x0, (a0)\n \t"
-        ::"r"((uint64_t)&_lockMem));
+        ::"r"((uint64_t)&ConsoleLock));
 }
 
 

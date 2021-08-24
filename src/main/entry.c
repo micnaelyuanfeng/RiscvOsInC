@@ -24,40 +24,43 @@ void kentry(uint64_t _hid){
     fnStdoutInit(PrintBuf, fnUartPutCharWrap);
     fnUartHwInit();
     fnRegisterAccessInit();
-    
-extern void kentry2();
-    if(_hid == 1) kentry2(_hid);
-
+    fnTrapInit();
     fnCoremap_init();
     fnVmInit();
     fnBuildRootPageTable();
-    fnThreadControlInit();
-    fnTrapInit();
+    
+    VmControl.ptAllocAndMapCbMem();
+extern void kentry2();
+    if(_hid == 1) kentry2(_hid);
+
+    
+    // fnThreadControlInit();
+    
     // fnTimerInit();
-    fnMallocTest();
-    fnFreeTest();
+    // fnMallocTest();
+    // fnFreeTest();
     // fnInterruptTest();
 
-    fnMallocMapTest();
+    // fnMallocMapTest();
     
-    fnGreetingPrint();
-
+    // fnGreetingPrint();
+    // acquireLock();
     printf("Hart 1 initialization Compelete\n");
-
     procecedLock = true;
     
     while(1){
-        // acquireLock();
-        // printf("Get Lock %d\n", _hid);
-        // int i = 0;
-        // while (i < 1000000000) i = i + 1;
-        printf("Enter wfi\n");
-        wfi();
-        printf("Wake Up\n");
+        int i = 0;
+        while (i < 500000000) i = i + 1;
+        
+        printf("Send ipi from hart %d\n", _hid);
         uint64_t hid = 0b10;
+
+        fnSubmitCommand();
+
         register unsigned int id asm("x17") = 0x4;
         register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
         asm __volatile__("ecall");
+        // while (i < 1000000000) i = i + 1;
         // releaseLock();
     }
 }
@@ -69,15 +72,20 @@ void kentry2(uint64_t _hid){
 
     while(1){
         // acquireLock();
-        // printf("Get Lock %d\n", _hid);
+        // printf("%d ", _hid);
+        // printf("Enter wfi\n");
+        wfi();
+        // printf("Wake Up\n");
         int i = 0;
-        printf("Send ipi from hart %d\n", _hid);
-        uint64_t hid = 0b01;
-        register unsigned int id asm("x17") = 0x4;
-        register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
-        asm __volatile__("ecall");
-        while (i < 1000000000) i = i + 1;
-        // releaseLock();
+        // printf("Send ipi from hart %d\n", _hid);
+        // uint64_t hid = 0b01;
+        // register unsigned int id asm("x17") = 0x4;
+        // register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
+        // asm __volatile__("ecall");
+        // while (i < 1000000000) i = i + 1;
+        acquireLock();
+        fnReadCommand();
+        releaseLock();
     } 
 }
 
