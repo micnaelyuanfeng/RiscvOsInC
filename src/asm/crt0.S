@@ -56,6 +56,7 @@ _main_stack:
     .globl _main_stack_top
 _main_stack_top:
 
+    .align 12
 _main_stack_hart2:
     .space 4096 * 2
     .globl _main_stack_top_hart2
