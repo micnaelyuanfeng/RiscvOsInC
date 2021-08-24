@@ -60,5 +60,4 @@ SECTIONS
     . = ALIGN(4096);
     _bss_end = .;
     __KernelEndAddr = .;
-
 }
