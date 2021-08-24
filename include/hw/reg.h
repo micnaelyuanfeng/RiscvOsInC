@@ -15,6 +15,8 @@ typedef void (*_readSie)();
 typedef void (*_writeSie)();
 typedef void (*_readCcyle)();
 typedef void (*_setCcycle)();
+typedef void (*_readSip)();
+typedef void (*_writeSip)();
 
 void __readSstatus(uint64_t* volatile retValue);
 void __readSatp(uint64_t* volatile retValue);
@@ -30,6 +32,8 @@ void __writeSie(uint64_t volatile value);
 void __writeSstatus(uint64_t volatile value);
 
 void __setCcycle(uint64_t volatile value);
+void __readSip(uint64_t* volatile retValue);
+void __writeSip(uint64_t volatile value);
 
 
 typedef struct RegisterRoute{
@@ -46,6 +50,8 @@ typedef struct RegisterRoute{
     _writeSstatus  writeSstatus;
     _writeSatp     writeSatp;
     _flushTlb      flushTlb;
+    _readSip       readSip;
+    _writeSip      writeSip;
 }RegisterRoute_t;
 
 void fnRegisterAccessInit();

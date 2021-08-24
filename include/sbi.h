@@ -5,5 +5,8 @@
 #define __SBI_REQ_SET_TIMER         0
 #define __SBI_REQ_CONSOLE_PUTCHAR   1
 #define __SBI_REQ_CONSOLE_GETCHAR   2
+#define __SBI_IPI_SVC_INT   4
+
+
 
 #endif

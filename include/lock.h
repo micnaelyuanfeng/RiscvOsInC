@@ -6,4 +6,8 @@ void __releaseLock();
 
 #define acquireLock(...) __getLock()
 #define releaseLock(...) __releaseLock()
+#define wfi(...) ({ \
+    __asm__ volatile ("wfi");   \
+})
+
 #endif
