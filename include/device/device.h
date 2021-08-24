@@ -54,8 +54,31 @@ void fnClearTick();
 void fnAddTick();
 void fnSetTimerInterval();
 
-typedef struct DeviceRingBuf {
 
+typedef void (*_write)();
+typedef void (*_read)();
+/**
+ * Ring Buffer
+*/
+
+extern void __CommandQueueMemStart();
+extern void __LockMemStart();
+
+extern uint64_t __consoleLock;
+extern uint64_t __queueMemLock;
+
+#define pCommandQueueMem __CommandQueueMemStart
+#define pLockMemStart __LockMemStart
+#define ConsoleLock __consoleLock
+#define QueueMemLock __queueMemLock
+typedef struct DeviceRingBuf {
+    uint64_t cbStartVa;
+    uint64_t cbStartPa;
+    uint64_t sizeInBytes;
+    bool isCbFull;
+
+    _write write;
+    _read read;
 }DeviceRingBuf_t;
 
 void fnWriteRb();
