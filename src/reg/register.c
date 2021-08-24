@@ -21,6 +21,17 @@ void fnRegisterAccessInit(){
     RegisterAccess.writeSatp = __writeSatp;
     RegisterAccess.flushTlb  = __flushTlb;
 
+    RegisterAccess.readSip = __readSip;
+    RegisterAccess.writeSip = __writeSip;
+}
+
+void __readSip(uint64_t* volatile retValue){
+    __asm__ volatile (
+        "csrr %0, sip"
+        : "=r"(*retValue)
+        :
+        :"memory"
+    );
 }
 
 void __readSstatus(uint64_t* volatile retValue){
@@ -96,6 +107,15 @@ void __readSie(uint64_t* volatile retValue){
 void __writeSatp(uint64_t value){
     __asm__ volatile (
         "csrw satp, %0"
+        :
+        : "r"(value)
+        :"memory"
+    );
+}
+
+void __writeSip(uint64_t value){
+    __asm__ volatile (
+        "csrw sip, %0"
         :
         : "r"(value)
         :"memory"
