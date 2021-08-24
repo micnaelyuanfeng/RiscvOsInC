@@ -7,32 +7,22 @@ BASE_ADDRESS = 0xffffffff80200000;
 
 SECTIONS
 {
-    /* __ipi_mem_start = .;
-    PROVIDE(pRoqMem = .);
-    .ipi_sect : {
-        *(*.ipi_sect)
+    . = 0x1000;
+    __CommandQueueMemStart = .;
+    PROVIDE(__commandBuffMem = .);
+    .uqinfo : {
+        *(*.uqinfo.*)
     }
-    . = 0x2000;
-    __ipi_mem_end = .;
-
-    __share_mem_uq_start = .;
-    PROVIDE(ProcessArray = .);
-    .uq_info_sect : {
-        *(*.uq_info_sect)
-    }
-    . = 0xA000;
-    __share_mem_uq_end = .;
+    . += 0x1000;
+    __CommandQueueMemEnd = .;
     
-    PROVIDE(lock_mem = .);
+    __LockMemStart = .;
+    PROVIDE(__consoleLock = .);
     . += 8;
-    PROVIDE(pLogMemMgr = .);
-    . += 16;
-    PROVIDE(log_lock_mem = .);
+    PROVIDE(__queueMemLock = .);
     . += 8;
-    PROVIDE(pLogMem = .);
-    . += 0xF000;
-    . = ALIGN(4096);
-    PROVIDE(pLogMemEnd = .); */
+    __LockMemEnd = .;
+
 
     . = BASE_ADDRESS;
 
