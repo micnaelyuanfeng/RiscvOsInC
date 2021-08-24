@@ -10,8 +10,6 @@ INCLUDES += -I ./include/hw
 INCLUDES += -I ./include/device
 INCLUDES += -I ./include/trap
 INCLUDES += -I ./include/thread 
-# RISCVCOMPL := riscv64-unknown-elf-gcc
-# CFLAG := -march=rv64imafdc -O0 -nostartfiles -nostdlib -nodefaultlibs -fno-builtin -fno-exceptions -g2 -D LOG_LEVEL=LOG_LEVEL_$(LOG_LEVEL)
 
 CC := riscv64-unknown-elf-gcc
 CASM := riscv64-unknown-elf-as
