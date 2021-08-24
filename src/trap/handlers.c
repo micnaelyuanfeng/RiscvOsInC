@@ -8,8 +8,18 @@
 extern RegisterRoute_t RegisterAccess;
 extern DeviceTimer_t TimerControl;
 
+static inline void _clearSuperVisorSoftwareIntr(){
+    uint64_t sip;
+
+    RegisterAccess.readSip(&sip);
+    // rs64RegReadSip(&sip);
+    sip &= ~(1UL << 1UL);//clear ssip
+    // rs64RegWriteSip(sip);
+    RegisterAccess.writeSip(sip);
+}
+
 void _handlerEbp(void* _tf, ...){
-    ((Trapframe_t*)_tf)->sSepc += 4;
+    ((Trapframe_t*)_tf)->sSepc += 2;
 }
 
 void _handlerSupervisorTimer(void* _tf, ...){
@@ -20,4 +30,9 @@ void _handlerSupervisorTimer(void* _tf, ...){
     TimerControl.tick += 1;
     
     fnSetTimerInterval();
+}
+
+void _handlerSupervisorSoftInt(void* _tf, ...){
+    _clearSuperVisorSoftwareIntr();
+    printf("Receive Software Interrupt, and clear\n");
 }

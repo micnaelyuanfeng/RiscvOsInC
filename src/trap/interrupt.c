@@ -15,6 +15,7 @@ _intrHandler ExcpVecTbl[ExceptionUnknown];
 void fnBuildIntrVetTbl(){
     ExcpVecTbl[Breakpoint] = _handlerEbp;
     TrapVecTbl[SupervisorTimer] = _handlerSupervisorTimer;
+    TrapVecTbl[SupervisorSoft] = _handlerSupervisorSoftInt;
 }
 
 void fnTrapInit(){
