@@ -269,3 +269,7 @@ void fnMallocMapTest(){
 
 void fnFreeMapTest(){
 }
+
+void fnMalloMapUtilitiesMem(){
+    VmControl.ptAllocAndMapCbMem();
+}
