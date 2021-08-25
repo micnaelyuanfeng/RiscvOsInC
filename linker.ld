@@ -10,9 +10,6 @@ SECTIONS
     . = 0x1000;
     __CommandQueueMemStart = .;
     PROVIDE(__commandBuffMem = .);
-    .uqinfo : {
-        *(*.uqinfo.*)
-    }
     . += 0x1000;
     __CommandQueueMemEnd = .;
     
@@ -47,6 +44,16 @@ SECTIONS
         *(.data)
         *(.data.*)
     }
+
+    /* Testing Purpose */
+    . = ALIGN(4096);
+    __ExtBinRomLocStart = .;
+    .ebin : {
+        *(.extcode)
+        *(.extdata)
+    }
+    . += 0x10000;
+    __ExtBinRomLocEnd = .;
 
     . = ALIGN(4096);
     _bss_start = .;
