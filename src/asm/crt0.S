@@ -9,6 +9,8 @@
 _start:
     call _clear_bss
 
+    bnez a0, _other_harts
+
     lui t0, %hi(_root_page_table)
     li t1, 0xffffffff00000000
     sub t0, t0, t1
@@ -21,8 +23,6 @@ _start:
     csrw satp, t0
     sfence.vma
 
-    bnez a0, _other_harts
-
     lui sp, %hi(_main_stack_top)
     addi sp, sp, %lo(_main_stack_top)
     # la sp, _main_stack_top
@@ -34,6 +34,18 @@ loop_main:
     # jal kentry
 
 _other_harts:
+    lui t0, %hi(_2nd_page_table)
+    li t1, 0xffffffff00000000
+    sub t0, t0, t1
+    srli t0, t0, 12
+
+    li t1, 0x8
+    slli t1, t1, 60
+    or t0, t0, t1
+
+    csrw satp, t0
+    sfence.vma
+
     lui sp, %hi(_main_stack_top_hart2)
     addi sp, sp, %lo(_main_stack_top_hart2)
 
@@ -65,6 +77,18 @@ _main_stack_top_hart2:
     .align 12
     .section .data
 _root_page_table:
+    .quad (0x00000 << 10) | 0xcf
+    .quad 0
+    .quad (0x80000 << 10) | 0xcf
+    .zero 505 * 8
+    .quad (0x00000 << 10) | 0xcf
+    .quad 0
+    .quad (0x80000 << 10) | 0xcf
+    .quad 0
+
+    .align 12
+    .section .data
+_2nd_page_table:
     .quad (0x00000 << 10) | 0xcf
     .quad 0
     .quad (0x80000 << 10) | 0xcf
