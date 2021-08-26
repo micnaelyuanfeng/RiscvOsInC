@@ -273,3 +273,94 @@ void fnFreeMapTest(){
 void fnMalloMapUtilitiesMem(){
     VmControl.ptAllocAndMapCbMem();
 }
+
+void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
+    uint64_t vpn[PT_LEVEL] = {
+        _ptVa >> 12 & VPN_MASK_L1,
+        _ptVa >> 21 & VPN_MASK_L2,
+        _ptVa >> 30 & VPN_MASK_L3
+    };
+
+    uint64_t ppn[PT_LEVEL] = {
+        _ptPa >> 12 & PPN_MASK_L1,
+        _ptPa >> 21 & PPN_MASK_L2,
+        _ptPa >> 30 & PPN_MASK_L3
+    };
+
+    uint64_t* root = pPt;
+    uint64_t pa = 0UL;
+    uint64_t* nextLevelPtVaEntryVa = (uint64_t*)&root[vpn[2]];
+
+    for (int i = level - 1; i >= 0; i--){
+        if(!(*nextLevelPtVaEntryVa) & Valid){
+            CoreMemBlkInfo_t blkInf = {0};
+            blkInf.numOfPage = 1;
+            
+            pa = CoreMapControl.kmalloc(&blkInf);
+
+            *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
+    
+            _updatePageTableOtherThread(pPt, 0xFFFFFFFF00000000UL | pa, pa, 2);
+        }
+
+        uint64_t ptEntryValue = *nextLevelPtVaEntryVa;
+
+        uint64_t* nextLevelPtVa = (uint64_t*)(P2V(PPN(ptEntryValue)));
+
+        nextLevelPtVaEntryVa = &nextLevelPtVa[vpn[i]];
+        
+    }
+    uint64_t pageTableEntryVal = (ppn[2] << 28) |   // PPN[2] = [53:28]
+        (ppn[1] << 19) |   // PPN[1] = [27:19]
+        (ppn[0] << 10) |   // PPN[0] = [18:10]
+        Valid | ReadWriteExecute;
+
+    *nextLevelPtVaEntryVa = pageTableEntryVal;
+}
+
+void fnBuildPtForOtherThread(uint8_t _hartId){
+    // uint64_t kernelStart = CoreMapControl.kernelStartAddr;
+    // uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
+
+    // uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE; 
+
+extern void __ExtBinRomLocStart();
+extern void __ExtBinRomLocEnd();
+
+#define BinStartVa __ExtBinRomLocStart
+#define BinEndVa __ExtBinRomLocEnd
+
+    uint64_t numOfBinPages = (((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE == 0) ? 
+                             1 : ((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE;
+
+    uint64_t startVa = (uint64_t)BinStartVa;
+    uint64_t startPa = startVa & ~0xFFFFFFFF00000000UL;
+
+    printf("number of pages: %d\n", numOfBinPages);
+    printf("bin start 0x%x%x\n", startVa >> 32, startVa);
+    printf("bin start 0x%x%x\n", startPa >> 32, startPa);
+
+
+    CoreMemBlkInfo_t blkInf = {0};
+
+    blkInf.numOfPage = 1;
+
+    uint64_t ptPa = CoreMapControl.kmalloc(&blkInf);
+
+    uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
+
+    // _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
+
+    for (uint64_t i = 0; i < numOfBinPages; i++){
+        // _updatePageTable(startVa, startPa, PT_LEVEL - 1);
+        _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
+
+        startVa += PAGE_SIZE;
+        startPa += PAGE_SIZE;
+    }
+
+    uint64_t value = ((8UL << 60) | (ptPa >> 12));
+
+    RegisterAccess.writeSatp(value);
+    // RegisterAccess.flushTlb();
+}
