@@ -73,6 +73,8 @@ typedef struct VMControl {
 void fnVmInit();
 void fnPtWalk();
 void fnBuildRootPageTable();
+void fnMalloMapUtilitiesMem();
+void fnBuildPtForOtherThread(uint8_t _hartId);
 
 void fnMallocMapTest();
 void fnFreeMapTest();
