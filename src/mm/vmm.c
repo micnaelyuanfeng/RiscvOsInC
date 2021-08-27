@@ -4,10 +4,12 @@
 #include "vm.h"
 #include "device.h"
 #include "printf.h"
+#include "hart.h"
 
-extern VMControl_t VmControl;
-extern CoreMapCntl_t CoreMapControl;
-extern RegisterRoute_t RegisterAccess;
+// extern VMControl_t VmControl;
+// extern CoreMapCntl_t CoreMapControl;
+// extern RegisterRoute_t RegisterAccess;
+extern HartInfo_t* pHart0;
 
 uint64_t _kmap(uint64_t _pa){
     return true;
@@ -18,23 +20,23 @@ bool _kunmap(uint64_t _va){
 }
 
 void fnVmInit(){
-    VmControl.buildPageTable = _buildPageTable;
-    VmControl.kmap = _kmap;
-    VmControl.kunmap = _kunmap;
-    VmControl.registerPageTable = _registerPageTable;
-    VmControl.buildRootPageTable = _buildRootPageTable;
-    VmControl.mapRange = _mapRange;
-    VmControl.updatePageTable = _updatePageTable;
-    VmControl.ptClone = _ptClone;
-    VmControl.ptAllocAndMapCbMem = _ptAllocAndMapCbMem;
+    pHart0->VmControl.buildPageTable = _buildPageTable;
+    pHart0->VmControl.kmap = _kmap;
+    pHart0->VmControl.kunmap = _kunmap;
+    pHart0->VmControl.registerPageTable = _registerPageTable;
+    pHart0->VmControl.buildRootPageTable = _buildRootPageTable;
+    pHart0->VmControl.mapRange = _mapRange;
+    pHart0->VmControl.updatePageTable = _updatePageTable;
+    pHart0->VmControl.ptClone = _ptClone;
+    pHart0->VmControl.ptAllocAndMapCbMem = _ptAllocAndMapCbMem;
 
-    VmControl.ptVa = 0;
-    VmControl.ptPa = 0;
+    pHart0->VmControl.ptVa = 0;
+    pHart0->VmControl.ptPa = 0;
 }
 
 void _buildRootPageTable(){
-    uint64_t kernelStart = CoreMapControl.kernelStartAddr;
-    uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
+    uint64_t kernelStart = pHart0->CoreMapControl.kernelStartAddr;
+    uint64_t kernelEnd = pHart0->CoreMapControl.kernelEndAddr;
 
     uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE; 
 
@@ -42,15 +44,15 @@ void _buildRootPageTable(){
 
     blkInf.numOfPage = 1;
 
-    uint64_t ptPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t ptPa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
-    VmControl.ptPa = ptPa;
+    pHart0->VmControl.ptPa = ptPa;
 
-    VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
+    pHart0->VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
 
-    _updatePageTable(VmControl.ptVa, VmControl.ptPa, 2);
+    _updatePageTable(pHart0->VmControl.ptVa, pHart0->VmControl.ptPa, 2);
 
-    uint64_t paStart = CoreMapControl.coremapStartAddr;
+    uint64_t paStart = pHart0->CoreMapControl.coremapStartAddr;
 
     uint64_t kernekStartPa = kernelStart & ~0xFFFFFFFF00000000;
 
@@ -68,13 +70,13 @@ void _buildPageTable(){
 
     blkInf.numOfPage = 1;
 
-    uint64_t ptPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t ptPa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
-    VmControl.ptPa = ptPa;
+    pHart0->VmControl.ptPa = ptPa;
 
-    VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
+    pHart0->VmControl.ptVa = 0xFFFFFFFF00000000 | ptPa;
 
-    _updatePageTable(VmControl.ptVa, VmControl.ptPa, PT_LEVEL - 1);
+    _updatePageTable(pHart0->VmControl.ptVa, pHart0->VmControl.ptPa, PT_LEVEL - 1);
 }
 
 void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
@@ -90,7 +92,7 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
         _ptPa >> 30 & PPN_MASK_L3
     };
 
-    uint64_t* root = (uint64_t*)VmControl.ptVa;
+    uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
     uint64_t pa = 0UL;
     uint64_t* nextLevelPtVaEntryVa = (uint64_t*)&root[vpn[2]];
 
@@ -99,7 +101,7 @@ void _updatePageTable(uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
             CoreMemBlkInfo_t blkInf = {0};
             blkInf.numOfPage = 1;
             
-            pa = CoreMapControl.kmalloc(&blkInf);
+            pa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
             *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
     
@@ -137,20 +139,20 @@ void _mapRange(uint64_t* _ptVa, uint8_t _sizeInPage, uint8_t level, uint64_t _va
 }
 
 void _registerPageTable(){
-    uint64_t value = ((8UL << 60) | (VmControl.ptPa >> 12));
+    uint64_t value = ((8UL << 60) | (pHart0->VmControl.ptPa >> 12));
 
-    RegisterAccess.writeSatp(value);
-    RegisterAccess.flushTlb();
+    pHart0->RegisterAccess.writeSatp(value);
+    pHart0->RegisterAccess.flushTlb();
 }
 
 void _ptClone(uint64_t* _ptVa){
-    uint64_t* root = (uint64_t*)VmControl.ptVa;
+    uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
 
     CoreMemBlkInfo_t blkInf = {0};
 
     blkInf.numOfPage = 1;
 
-    uint64_t rootPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t rootPa = pHart0->CoreMapControl.kmalloc(&blkInf);
     uint64_t rootVa = 0xFFFFFFFF00000000UL | rootPa;
     _updatePageTable(rootVa, rootPa, PT_LEVEL - 1);
 
@@ -159,7 +161,7 @@ void _ptClone(uint64_t* _ptVa){
             // printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
             uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
             
-            uint64_t pdPa = CoreMapControl.kmalloc(&blkInf);
+            uint64_t pdPa = pHart0->CoreMapControl.kmalloc(&blkInf);
             uint64_t pdVa = 0xFFFFFFFF00000000UL | pdPa;
             _updatePageTable(pdVa, pdPa, PT_LEVEL - 1);
 
@@ -168,7 +170,7 @@ void _ptClone(uint64_t* _ptVa){
             for(int j = 0; j <= 511; j++){
                 if(ppt[j] & Valid){
                     // printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
-                    uint64_t pd2Pa = CoreMapControl.kmalloc(&blkInf);
+                    uint64_t pd2Pa = pHart0->CoreMapControl.kmalloc(&blkInf);
                     uint64_t pd2Va = 0xFFFFFFFF00000000UL | pd2Pa;
                     _updatePageTable(pd2Va, pd2Pa, PT_LEVEL - 1);
  
@@ -198,24 +200,27 @@ void _ptClone(uint64_t* _ptVa){
 }
 
 void _ptAllocAndMapCbMem(){
+    
+// extern BASE_UTILITY_MEM
     uint64_t* pCmdBuffer = (uint64_t*)pCommandQueueMem;
 
     CoreMemBlkInfo_t blkInf = {0};
     blkInf.numOfPage = 1;
     
-    uint64_t pa = CoreMapControl.kmalloc(&blkInf);
-    VmControl.updatePageTable((uint64_t)pCmdBuffer, pa, PT_LEVEL - 1);
+    uint64_t pa = pHart0->CoreMapControl.kmalloc(&blkInf);
+    pHart0->VmControl.updatePageTable((uint64_t)pCmdBuffer, pa, PT_LEVEL - 1);
 
     uint64_t* pUtilitiesMem = (uint64_t*)pLockMemStart;
 
-    pa = CoreMapControl.kmalloc(&blkInf);
-    VmControl.updatePageTable((uint64_t)pUtilitiesMem, pa, PT_LEVEL - 1);
+    pa = pHart0->CoreMapControl.kmalloc(&blkInf);
+    pHart0->VmControl.updatePageTable((uint64_t)pUtilitiesMem, pa, PT_LEVEL - 1);
+    
 }
 
 void fnPtWalk(){
-    uint64_t* root = (uint64_t*)VmControl.ptVa;
+    uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
 
-    printf("Page Table PA 0x%x%x\n", VmControl.ptPa >> 32, VmControl.ptPa);
+    printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
 
     for(int i = 0; i <= 511; i++){
         if(root[i] & Valid){
@@ -240,9 +245,9 @@ void fnPtWalk(){
 }
 
 void fnBuildRootPageTable(){
-    VmControl.buildRootPageTable();
-    VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
-    VmControl.registerPageTable();
+    pHart0->VmControl.buildRootPageTable();
+    pHart0->VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
+    pHart0->VmControl.registerPageTable();
 }
 
 void fnMallocMapTest(){
@@ -251,9 +256,9 @@ void fnMallocMapTest(){
     CoreMemBlkInfo_t blkInf = {0};
     blkInf.numOfPage = 1;
     
-    uint64_t pa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t pa = pHart0->CoreMapControl.kmalloc(&blkInf);
     uint64_t va = P2V(pa);
-    VmControl.updatePageTable(va, pa, PT_LEVEL - 1);
+    pHart0->VmControl.updatePageTable(va, pa, PT_LEVEL - 1);
 
     uint64_t* pMem = (uint64_t*)va;
 
@@ -271,7 +276,7 @@ void fnFreeMapTest(){
 }
 
 void fnMalloMapUtilitiesMem(){
-    VmControl.ptAllocAndMapCbMem();
+    pHart0->VmControl.ptAllocAndMapCbMem();
 }
 
 void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
@@ -296,7 +301,7 @@ void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, 
             CoreMemBlkInfo_t blkInf = {0};
             blkInf.numOfPage = 1;
             
-            pa = CoreMapControl.kmalloc(&blkInf);
+            pa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
             *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
     
@@ -345,7 +350,7 @@ extern void __ExtBinRomLocEnd();
 
     blkInf.numOfPage = 1;
 
-    uint64_t ptPa = CoreMapControl.kmalloc(&blkInf);
+    uint64_t ptPa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
     uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
 
@@ -361,6 +366,6 @@ extern void __ExtBinRomLocEnd();
 
     uint64_t value = ((8UL << 60) | (ptPa >> 12));
 
-    RegisterAccess.writeSatp(value);
+    pHart0->RegisterAccess.writeSatp(value);
     // RegisterAccess.flushTlb();
 }

@@ -9,60 +9,80 @@
 #include "vm.h"
 #include "lock.h"
 #include "thread.h"
-#include "process.h"
 #include "printf.h"
+#include "hart.h"
 
 extern uint8_t PrintBuf[];
-extern VMControl_t VmControl;
-extern ThreadCntl_t ThreadControl;
 extern bool procecedLock;
-/**
- * All funtins aruments passphrease use
- * x^2 + y^2 = 4
-*/
+
+extern HartInfo_t HartInstance[];
+extern HartInfo_t* pHart0;
+
+static void memcpy(uint8_t* dst, uint8_t* src, uint32_t sizeInBytes){
+    for (uint32_t i = 0; i < sizeInBytes; i++){
+        *(dst + i) = *(src + i);
+    }
+}
+
 
 void kentry(uint64_t _hid){
-    fnStdoutInit(PrintBuf, fnUartPutCharWrap);
-    fnUartHwInit();
-    fnRegisterAccessInit();
-    fnTrapInit();
-    fnCoremap_init();
-    fnVmInit();
-    fnBuildRootPageTable();
-    
-    VmControl.ptAllocAndMapCbMem();
+
 extern void fnEntry();
     if(_hid == 1) fnEntry();
 
-    
-    // fnThreadControlInit();
-    
-    // fnTimerInit();
-    // fnMallocTest();
-    // fnFreeTest();
-    // fnInterruptTest();
+    pHart0 = &HartInstance[_hid];
 
-    // fnMallocMapTest();
+    fnStdoutInit(PrintBuf, fnUartPutCharWrap);
+    fnUartHwInit();
+    fnRegisterAccessInit();
+    fnTrapInit(); 
+    fnCoremap_init();
+    fnMallocTest();
+    fnFreeTest();
+
+    fnVmInit(_hid);
+    fnBuildRootPageTable();
+    fnMalloMapUtilitiesMem();
+    fnMallocMapTest();
+    fnThreadControlInit();
+    fnTimerInit(_hid);
+    fnInterruptTest();
     
-    // fnGreetingPrint();
-    // acquireLock();
-    printf("Hart 1 initialization Compelete\n");
+    memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t) * NUM_OF_HART);
+
+    pHart0 = &((HartInfo_t*)pHartInstance)[_hid];
+
+    uint64_t cycle = 0;
+
+    pHart0->RegisterAccess.readCcyle(&cycle);
+
+    // printf("cycle is %x\n", cycle);
+
+    // printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
+    // printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+
+
+    fnGreetingPrint();
+    
+    // printf("Hart 1 initialization Compelete\n");
+
     procecedLock = true;
-    
-    while(1){
-        int i = 0;
-        while (i < 500000000) i = i + 1;
-        
-        printf("Send ipi from hart %d\n", _hid);
-        uint64_t hid = 0b10;
-        
-        acquireLock();
-        fnSubmitCommand();
-        releaseLock();
 
-        register unsigned int id asm("x17") = 0x4;
-        register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
-        asm __volatile__("ecall");
+extern void fnSubmitCommand();    
+    while(1){
+        // int i = 0;
+        // while (i < 500000000) i = i + 1;
+        
+        // printf("Send ipi from hart %d\n", _hid);
+        // uint64_t hid = 0b10;
+        
+        // acquireLock();
+        // fnSubmitCommand();
+        // releaseLock();
+
+        // register unsigned int id asm("x17") = 0x4;
+        // register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
+        // asm __volatile__("ecall");
         // while (i < 1000000000) i = i + 1;
         // releaseLock();
     }

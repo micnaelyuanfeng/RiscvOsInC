@@ -79,9 +79,9 @@ _main_stack_top_hart2:
 _root_page_table:
     .quad (0x00000 << 10) | 0xcf
     .quad 0
-    .quad (0x80000 << 10) | 0xcf
+    .quad (0x80000 << 10) | 0xcf #UART
     .zero 505 * 8
-    .quad (0x00000 << 10) | 0xcf
+    .quad (0x00000 << 10) | 0xcf #UART
     .quad 0
     .quad (0x80000 << 10) | 0xcf
     .quad 0
@@ -91,9 +91,9 @@ _root_page_table:
 _2nd_page_table:
     .quad (0x00000 << 10) | 0xcf
     .quad 0
-    .quad (0x80000 << 10) | 0xcf
+    .quad (0x80000 << 10) | 0xcf #UART
     .zero 505 * 8
-    .quad (0x00000 << 10) | 0xcf
+    .quad (0x00000 << 10) | 0xcf #UART
     .quad 0
     .quad (0x80000 << 10) | 0xcf
     .quad 0

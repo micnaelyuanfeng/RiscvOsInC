@@ -4,9 +4,11 @@
 #include "trap.h"
 #include "printf.h"
 #include "handlers.h"
+#include "hart.h"
 
+// extern RegisterRoute_t RegisterAccess;
+extern HartInfo_t* pHart0;
 
-extern RegisterRoute_t RegisterAccess;
 extern void __trap_enter();
 
 _intrHandler TrapVecTbl[InterruptUnknown];
@@ -21,21 +23,21 @@ void fnBuildIntrVetTbl(){
 void fnTrapInit(){
     fnBuildIntrVetTbl();
 
-    RegisterAccess.writeScratch(0);
+    pHart0->RegisterAccess.writeScratch(0);
     
     uint64_t value = (uint64_t) __trap_enter | (uint64_t)DirectMode;
 
-    RegisterAccess.writeStvec(value);
+    pHart0->RegisterAccess.writeStvec(value);
 
     value = 0;
-    RegisterAccess.readSstatus(&value);
+    pHart0->RegisterAccess.readSstatus(&value);
     value |= (1 << 1);
-    RegisterAccess.writeSstatus(value);
+    pHart0->RegisterAccess.writeSstatus(value);
 
     value = 0;
-    RegisterAccess.readSie(&value);
+    pHart0->RegisterAccess.readSie(&value);
     value |= (1 << 1);
-    RegisterAccess.writeSie(value);
+    pHart0->RegisterAccess.writeSie(value);
 }
 
 void fnDispatchInterrupt(Trapframe_t* _tf){
@@ -93,8 +95,7 @@ void fnInterruptTest(){
 
     printf("|====>    EBREAK Test Pass\n");
 
-extern DeviceTimer_t TimerControl;
-    while(TimerControl.tick < 2);
+    while(pHart0->TimerControl.tick < 2);
     printf("|====>    Timer Interrupt Test Pass\n");
     printf("|====>    Interrupt Test Ends\n");
     printf("|=============================$!\n");

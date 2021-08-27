@@ -1,21 +1,24 @@
 #include "types.h"
 #include "reg.h"
-#include "device.h"
-#include "trap.h"
+// #include "device.h"
+// #include "trap.h"
 #include "printf.h"
 #include "handlers.h"
+#include "hart.h"
 
-extern RegisterRoute_t RegisterAccess;
-extern DeviceTimer_t TimerControl;
+// extern RegisterRoute_t RegisterAccess;
+// extern DeviceTimer_t TimerControl;
+
+extern HartInfo_t* pHart0;
 
 static inline void _clearSuperVisorSoftwareIntr(){
     uint64_t sip;
 
-    RegisterAccess.readSip(&sip);
+    pHart0->RegisterAccess.readSip(&sip);
     // rs64RegReadSip(&sip);
     sip &= ~(1UL << 1UL);//clear ssip
     // rs64RegWriteSip(sip);
-    RegisterAccess.writeSip(sip);
+    pHart0->RegisterAccess.writeSip(sip);
 }
 
 void _handlerEbp(void* _tf, ...){
@@ -23,11 +26,11 @@ void _handlerEbp(void* _tf, ...){
 }
 
 void _handlerSupervisorTimer(void* _tf, ...){
-    RegisterAccess.readCcyle(&TimerControl.cycle);
+    pHart0->RegisterAccess.readCcyle(&pHart0->TimerControl.cycle);
  
-    if (TimerControl.tick == 100) TimerControl.tick = 0;
+    if (pHart0->TimerControl.tick == 100) pHart0->TimerControl.tick = 0;
   
-    TimerControl.tick += 1;
+    pHart0->TimerControl.tick += 1;
     
     fnSetTimerInterval();
 }

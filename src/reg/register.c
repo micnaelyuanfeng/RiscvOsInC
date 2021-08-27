@@ -1,28 +1,30 @@
 #include "types.h"
 #include "sbi.h"
 #include "reg.h"
+#include "hart.h"
 
-extern RegisterRoute_t RegisterAccess;
+// extern RegisterRoute_t RegisterAccess;
+extern HartInfo_t* pHart0;
 
 void fnRegisterAccessInit(){
-    RegisterAccess.readSstatus = __readSstatus;
-    RegisterAccess.readStap = __readSatp;
-    RegisterAccess.readSscratch = __readSscratch;
-    RegisterAccess.readSie = __readSie;
-    RegisterAccess.readCcyle = __readCcycle;
+    pHart0->RegisterAccess.readSstatus = __readSstatus;
+    pHart0->RegisterAccess.readStap = __readSatp;
+    pHart0->RegisterAccess.readSscratch = __readSscratch;
+    pHart0->RegisterAccess.readSie = __readSie;
+    pHart0->RegisterAccess.readCcyle = __readCcycle;
 
-    RegisterAccess.setCcycle = __setCcycle;
+    pHart0->RegisterAccess.setCcycle = __setCcycle;
     
-    RegisterAccess.writeScratch = __writeSscratch;
-    RegisterAccess.writeSie = __writeSie;
-    RegisterAccess.writeStvec = __writeStvec;
-    RegisterAccess.writeSstatus = __writeSstatus;
+    pHart0->RegisterAccess.writeScratch = __writeSscratch;
+    pHart0->RegisterAccess.writeSie = __writeSie;
+    pHart0->RegisterAccess.writeStvec = __writeStvec;
+    pHart0->RegisterAccess.writeSstatus = __writeSstatus;
 
-    RegisterAccess.writeSatp = __writeSatp;
-    RegisterAccess.flushTlb  = __flushTlb;
+    pHart0->RegisterAccess.writeSatp = __writeSatp;
+    pHart0->RegisterAccess.flushTlb  = __flushTlb;
 
-    RegisterAccess.readSip = __readSip;
-    RegisterAccess.writeSip = __writeSip;
+    pHart0->RegisterAccess.readSip = __readSip;
+    pHart0->RegisterAccess.writeSip = __writeSip;
 }
 
 void __readSip(uint64_t* volatile retValue){
