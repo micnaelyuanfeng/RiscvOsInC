@@ -7,18 +7,25 @@ BASE_ADDRESS = 0xffffffff80200000;
 
 SECTIONS
 {
-    . = 0x1000;
     __CommandQueueMemStart = .;
     PROVIDE(__commandBuffMem = .);
-    . += 0x1000;
-    __CommandQueueMemEnd = .;
+    .utility : {
+        *(.utility.command)
+        . += 0x1000;
+        __CommandQueueMemEnd = .;
+        
+        *(.utility.lock)
+        __LockMemStart = .;
+        PROVIDE(__consoleLock = .);
+        . += 8;
+        PROVIDE(__queueMemLock = .);
+        . += 8;
+        __LockMemEnd = .;
+        
+        __HartInfoArray = .;
+        *(.utility.procInfo)
+    }
     
-    __LockMemStart = .;
-    PROVIDE(__consoleLock = .);
-    . += 8;
-    PROVIDE(__queueMemLock = .);
-    . += 8;
-    __LockMemEnd = .;
 
 
     . = BASE_ADDRESS;
