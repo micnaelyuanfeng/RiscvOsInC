@@ -22,6 +22,9 @@ SECTIONS
         . += 8;
         __LockMemEnd = .;
         
+        __PrinfBuffStart = .;
+        . += 2048;
+        . = ALIGN(4096);
         __HartInfoArray = .;
         *(.utility.procInfo)
     }

@@ -17,6 +17,7 @@ extern bool procecedLock;
 
 extern HartInfo_t HartInstance[];
 extern HartInfo_t* pHart0;
+extern HartInfo_t* pHart0Daemon;
 
 static void memcpy(uint8_t* dst, uint8_t* src, uint32_t sizeInBytes){
     for (uint32_t i = 0; i < sizeInBytes; i++){
@@ -31,6 +32,7 @@ extern void fnEntry();
     if(_hid == 1) fnEntry();
 
     pHart0 = &HartInstance[_hid];
+    pHart0Daemon = pHart0;
 
     fnStdoutInit(PrintBuf, fnUartPutCharWrap);
     fnUartHwInit();
@@ -48,18 +50,18 @@ extern void fnEntry();
     fnTimerInit(_hid);
     fnInterruptTest();
     
-    memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t) * NUM_OF_HART);
+    memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t));
 
-    pHart0 = &((HartInfo_t*)pHartInstance)[_hid];
+    // pHart0 = &((HartInfo_t*)pHartInstance)[_hid];
 
     uint64_t cycle = 0;
 
     pHart0->RegisterAccess.readCcyle(&cycle);
 
-    // printf("cycle is %x\n", cycle);
+    printf("cycle is %x\n", cycle);
 
-    // printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
-    // printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+    printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
+    printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
 
 
     fnGreetingPrint();

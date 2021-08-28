@@ -10,6 +10,7 @@
 // extern CoreMapCntl_t CoreMapControl;
 // extern RegisterRoute_t RegisterAccess;
 extern HartInfo_t* pHart0;
+extern HartInfo_t* pHart0Daemon;
 
 uint64_t _kmap(uint64_t _pa){
     return true;
@@ -214,6 +215,11 @@ void _ptAllocAndMapCbMem(){
 
     pa = pHart0->CoreMapControl.kmalloc(&blkInf);
     pHart0->VmControl.updatePageTable((uint64_t)pUtilitiesMem, pa, PT_LEVEL - 1);
+
+    uint64_t* pHartInfoMems = (uint64_t*)pHartInstance;
+
+    pa = pHart0->CoreMapControl.kmalloc(&blkInf);
+    pHart0->VmControl.updatePageTable((uint64_t)pHartInfoMems, pa, PT_LEVEL - 1);
     
 }
 
@@ -350,22 +356,46 @@ extern void __ExtBinRomLocEnd();
 
     blkInf.numOfPage = 1;
 
-    uint64_t ptPa = pHart0->CoreMapControl.kmalloc(&blkInf);
+    uint64_t ptPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
 
-    uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
+    // uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
 
     // _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
 
-    for (uint64_t i = 0; i < numOfBinPages; i++){
-        // _updatePageTable(startVa, startPa, PT_LEVEL - 1);
-        _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
+    // for (uint64_t i = 0; i < numOfBinPages; i++){
+    //     // _updatePageTable(startVa, startPa, PT_LEVEL - 1);
+    //     _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
 
-        startVa += PAGE_SIZE;
-        startPa += PAGE_SIZE;
-    }
+    //     startVa += PAGE_SIZE;
+    //     startPa += PAGE_SIZE;
+    // }
 
-    uint64_t value = ((8UL << 60) | (ptPa >> 12));
 
-    pHart0->RegisterAccess.writeSatp(value);
-    // RegisterAccess.flushTlb();
+    // pHart0->VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
+
+    // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
+    // startVa = 0xFFFFFFFF00000000UL | startPa;
+    // _updatePageTableOtherThread((uint64_t*)ptVa, UART_BASE, startPa, PT_LEVEL - 1);
+
+
+    // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
+    // startVa = 0xFFFFFFFF00000000UL | startPa;
+    // _updatePageTableOtherThread((uint64_t*)ptVa, 0, startPa, PT_LEVEL - 1);
+
+    // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
+    // startVa = 0xFFFFFFFF00000000UL | startPa;
+    // _updatePageTableOtherThread((uint64_t*)ptVa, 0x1000, startPa, PT_LEVEL - 1);
+
+    // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
+    // startVa = 0xFFFFFFFF00000000UL | startPa;
+    // _updatePageTableOtherThread((uint64_t*)ptVa, 0x2000, startPa, PT_LEVEL - 1);
+    
+    // uint64_t value = ((8UL << 60) | (ptPa >> 12));
+
+extern uint64_t newPtSatp;
+    // newPtSatp = value;
+
+    // printf("Value: %d\n", newPtSatp);
+    // pHart0->RegisterAccess.writeSatp(value);
+    // pHart0->RegisterAccess.flushTlb();
 }

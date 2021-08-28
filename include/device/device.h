@@ -63,6 +63,7 @@ typedef void (*_read)();
 
 extern void __CommandQueueMemStart();
 extern void __LockMemStart();
+extern void __PrinfBuffStart();
 extern void __HartInfoArray();
 
 extern uint64_t __consoleLock;
@@ -73,6 +74,7 @@ extern uint64_t __queueMemLock;
 #define ConsoleLock __consoleLock
 #define QueueMemLock __queueMemLock
 #define pHartInstance __HartInfoArray
+#define pPrinfBuf __PrinfBuffStart
 typedef struct DeviceRingBuf {
     uint64_t cbStartVa;
     uint64_t cbStartPa;

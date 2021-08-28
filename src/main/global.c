@@ -8,7 +8,7 @@
 #include "printf.h"
 #include "hart.h"
 
-uint8_t PrintBuf[BUF_SIZE];
+uint8_t* PrintBuf = (uint8_t*) pPrinfBuf;
 
 // RegisterRoute_t RegisterAccess = {0};
 // CoreMapCntl_t CoreMapControl = {0};
@@ -29,4 +29,5 @@ HartInfo_t* pHart4;
 HartInfo_t* pHart5;
 HartInfo_t* pHart6;
 HartInfo_t* pHart7;
+HartInfo_t* pHart0Daemon;
  
