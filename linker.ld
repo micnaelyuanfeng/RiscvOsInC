@@ -63,6 +63,7 @@ SECTIONS
         *(.extdata)
     }
     . += 0x10000;
+    . = ALIGN(4096);
     __ExtBinRomLocEnd = .;
 
     . = ALIGN(4096);
