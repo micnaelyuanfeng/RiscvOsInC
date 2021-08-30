@@ -36,7 +36,7 @@ __switchTo:
 
     ld sp, 0(a1)
 
-    # LOAD s11, 1
+    LOAD s11, 1
 
     csrw satp, s11
     sfence.vma

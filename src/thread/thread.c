@@ -30,6 +30,7 @@ static void memcpy(uint8_t* dst, uint8_t* src, uint32_t size){
 }
 
 void _fork(){
+    printf("Fork...\n");
     //Create Stack
     CoreMemBlkInfo_t blkInf = {0};
 
@@ -61,16 +62,18 @@ extern void __trap_exit();
     pContextContent->ra = (uint64_t)__trap_exit;
     pContextContent->tf.gpr[2] = stackTopVa;
 
-    uint64_t binPa = pHart0->CoreMapControl.kmalloc(&blkInf);
+    uint64_t binKPa = pHart0->CoreMapControl.kmalloc(&blkInf);
     uint64_t binVa = BIN_START_VA;
-    uint64_t binKVa = P2V(binPa);
+    uint64_t binKVa = P2V(binKPa);
 
-    pHart0->VmControl.updatePageTable(binVa, binPa, PT_LEVEL - 1);
-    pHart0->VmControl.updatePageTable(binKVa, binPa, PT_LEVEL - 1);
+    pHart0->VmControl.updatePageTable(binVa, binKPa, PT_LEVEL - 1);
+    pHart0->VmControl.updatePageTable(binKVa, binKPa, PT_LEVEL - 1);
   
-    memcpy((uint8_t*)binKVa, (uint8_t*)binArray2, 48);
+    fnPtWalk();
+
+    memcpy((uint8_t*)binKVa, (uint8_t*)binArray3, 50);
 extern void testFunc();
-    pContextContent->tf.sSepc = (uint64_t)testFunc;
+    pContextContent->tf.sSepc = (uint64_t)binVa;
 
     uint64_t sstatus = 0;
     pHart0->RegisterAccess.readSstatus(&sstatus);
@@ -82,8 +85,6 @@ extern void testFunc();
     pContextContent->tf.sStatus = sstatus;
 
     uint8_t* ptr = (uint8_t*)(stackTopVa - _sizeof(ThreadContextContent_t));
-
-    memcpy(ptr, (uint8_t*)pContextContent, _sizeof(ThreadContextContent_t));
 
     Thread_t* pThread = (Thread_t*)threadContextVa;
 
@@ -104,7 +105,20 @@ extern void __switchTo(uint64_t a, uint64_t b);
     ((ThreadContextContent_t*)(pThread->context))->tf.gpr[11] = threadContextVa;
     ((ThreadContextContent_t*)(pThread->context))->tf.gpr[12] = 0;
 
+    // blkInf.numOfPage = 1;
+
+    // uint64_t ptPa = pHart0->CoreMapControl.kmalloc(&blkInf);
+
+    // uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
+
+    // pHart0->VmControl.updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
+
+    // updatePageTableOtherThread((uint64_t*)ptVa, binVa, binKPa, PT_LEVEL - 1);
+ 
     pHart0->VmControl.ptClone(&pContextContent->satp);
+    // pContextContent->satp = ((8UL << 60) | (ptPa >> 12));
+
+    memcpy(ptr, (uint8_t*)pContextContent, _sizeof(ThreadContextContent_t));
 
     __switchTo((uint64_t)&((Thread_t*)thread2ContextVa)->context, (uint64_t)&ptr);
 }
@@ -138,13 +152,13 @@ extern void __trap_exit();
     pContextContent->tf.gpr[2] = stackVa + PAGE_SIZE;
 
     uint64_t binPa = pHart0->CoreMapControl.kmalloc(&blkInf);
-    uint64_t binVa = BIN_START_VA;
+    uint64_t binVa = (uint64_t)BIN_START_VA;
     uint64_t binKVa = P2V(binPa);
 
     pHart0->VmControl.updatePageTable(binVa, binPa, PT_LEVEL - 1);
     pHart0->VmControl.updatePageTable(binKVa, binPa, PT_LEVEL - 1);
   
-    memcpy((uint8_t*)binKVa, (uint8_t*)binArray2, 16);
+    memcpy((uint8_t*)binKVa, (uint8_t*)binArray3, 50);
 
 extern void testFunc();
     pContextContent->tf.sSepc = (uint64_t)binVa;
@@ -159,8 +173,6 @@ extern void testFunc();
     pContextContent->tf.sStatus = sstatus;
 
     uint8_t* ptr = (uint8_t*)(pContextContent->tf.gpr[2] - _sizeof(ThreadContextContent_t));
-
-    memcpy(ptr, (uint8_t*)pContextContent, _sizeof(ThreadContextContent_t));
 
     Thread_t* pThread = (Thread_t*)threadContextVa;
 
@@ -182,6 +194,8 @@ extern void __switchTo(uint64_t a, uint64_t b);
     ((ThreadContextContent_t*)(pThread->context))->tf.gpr[12] = 0;
 
     pHart0->VmControl.ptClone(&pContextContent->satp);
+
+    memcpy(ptr, (uint8_t*)pContextContent, _sizeof(ThreadContextContent_t));
 
     __switchTo((uint64_t)&((Thread_t*)thread2ContextVa)->context, (uint64_t)&ptr);
 }

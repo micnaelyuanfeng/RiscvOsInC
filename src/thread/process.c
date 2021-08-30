@@ -4,7 +4,6 @@
 #include "device.h"
 #include "vm.h"
 #include "process.h"
-// #include "bin.h"
 #include "hart.h"
 #include "printf.h"
 
@@ -62,10 +61,12 @@ void fnEntry() __attribute__((section (".extcode")));
 void fnEntry(){
     while (!procecedLock);
 
+    pHart0->ThreadControl.fork();
+
     // fnStdoutInit(PrintBuf, fnUartPutCharWrap);
     // fnUartHwInit();
-
-    fnBuildPtForOtherThread(0b10);
+    // printf("Value: %x%x\n", newPtSatp >> 32, newPtSatp);
+    // fnBuildPtForOtherThread(0b10); //bug4 pt updated, but empty physical memory
 
     // __asm__ volatile (
     //     "csrw satp, %0"
@@ -74,13 +75,13 @@ void fnEntry(){
     //     :"memory"
     // );
 
-    __asm__ volatile (
-        "sfence.vma"
-    );
+    // __asm__ volatile (
+    //     "sfence.vma"
+    // );
 
     // fnMapGlobalMemInit();
-    // fnBuildPtForOtherThread(0b10); //Bug1 Bug2 Bug3
-    fnDbgPrint();
+    // fnBuildPtForOtherThread(0b10); //Bug1 range is not correct for the other hart  Bug2 Bug3
+    // fnDbgPrint();
     // printf("Hart 2 Start Executing\n");
 
 

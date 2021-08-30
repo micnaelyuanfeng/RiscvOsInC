@@ -191,7 +191,53 @@ void _ptClone(uint64_t* _ptVa){
         }
     }
 
+    for(int i = 0; i <= 511; i++){
+        if(root[i] & Valid){
+            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+            for(int j = 0; j <= 511; j++){
+                if(ppt[j] & Valid){
+                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+
+                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+                    for(int k = 0; k <= 511; k++){
+                        if(ppe[k] & Valid){
+                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     uint64_t* root2 = (uint64_t*)rootVa;
+
+    // uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
+
+    printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+
+    for(int i = 0; i <= 511; i++){
+        if(root2[i] & Valid){
+            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root2[i] >> 32, root[i]);
+            uint64_t* ppt = (uint64_t*)(((root2[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+            for(int j = 0; j <= 511; j++){
+                if(ppt[j] & Valid){
+                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+
+                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+                    for(int k = 0; k <= 511; k++){
+                        if(ppe[k] & Valid){
+                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // printf("Page Table 2 PA 0x%x%x\n", rootPa >> 32, rootPa);
 
@@ -281,10 +327,6 @@ void fnMallocMapTest(){
 void fnFreeMapTest(){
 }
 
-void fnMalloMapUtilitiesMem(){
-    pHart0->VmControl.ptAllocAndMapCbMem();
-}
-
 void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
     uint64_t vpn[PT_LEVEL] = {
         _ptVa >> 12 & VPN_MASK_L1,
@@ -303,22 +345,25 @@ void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, 
     uint64_t* nextLevelPtVaEntryVa = (uint64_t*)&root[vpn[2]];
 
     for (int i = level - 1; i >= 0; i--){
+        // printf("haha1\n");
         if(!(*nextLevelPtVaEntryVa) & Valid){
+            // printf("haha2\n");
             CoreMemBlkInfo_t blkInf = {0};
             blkInf.numOfPage = 1;
             
             pa = pHart0->CoreMapControl.kmalloc(&blkInf);
 
             *nextLevelPtVaEntryVa = (pa >> 2) | Valid;
-    
-            _updatePageTableOtherThread(pPt, 0xFFFFFFFF00000000UL | pa, pa, 2);
+            _updatePageTable(0xFFFFFFFF00000000UL | pa, pa, 2);
+            // _updatePageTableOtherThread(pPt, 0xFFFFFFFF00000000UL | pa, pa, 2);
         }
-
+        // printf("haha3\n");
         uint64_t ptEntryValue = *nextLevelPtVaEntryVa;
 
         uint64_t* nextLevelPtVa = (uint64_t*)(P2V(PPN(ptEntryValue)));
 
         nextLevelPtVaEntryVa = &nextLevelPtVa[vpn[i]];
+        // printf("haha4\n");
         
     }
     uint64_t pageTableEntryVal = (ppn[2] << 28) |   // PPN[2] = [53:28]
@@ -327,6 +372,32 @@ void _updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, 
         Valid | ReadWriteExecute;
 
     *nextLevelPtVaEntryVa = pageTableEntryVal;
+}
+
+void updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level){
+    _updatePageTableOtherThread(pPt, _ptVa,  _ptPa, level);
+
+    uint64_t* root = (uint64_t*)pPt;
+    for(int i = 0; i <= 511; i++){
+        if(root[i] & Valid){
+            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+            for(int j = 0; j <= 511; j++){
+                if(ppt[j] & Valid){
+                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+
+                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+                    for(int k = 0; k <= 511; k++){
+                        if(ppe[k] & Valid){
+                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void fnBuildPtForOtherThread(uint8_t _hartId){
@@ -345,11 +416,12 @@ extern void __ExtBinRomLocEnd();
                              1 : ((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE;
 
     uint64_t startVa = (uint64_t)BinStartVa;
+    uint64_t endVa = (uint64_t)BinEndVa;
     uint64_t startPa = startVa & ~0xFFFFFFFF00000000UL;
 
     printf("number of pages: %d\n", numOfBinPages);
-    printf("bin start 0x%x%x\n", startVa >> 32, startVa);
-    printf("bin start 0x%x%x\n", startPa >> 32, startPa);
+    printf("bin starts 0x%x%x\n", startVa >> 32, startVa);
+    printf("bin ends 0x%x%x\n", endVa >> 32, endVa);
 
 
     CoreMemBlkInfo_t blkInf = {0};
@@ -358,17 +430,17 @@ extern void __ExtBinRomLocEnd();
 
     uint64_t ptPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
 
-    // uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
+    uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
 
-    // _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
+    _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
 
-    // for (uint64_t i = 0; i < numOfBinPages; i++){
-    //     // _updatePageTable(startVa, startPa, PT_LEVEL - 1);
-    //     _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
+    for (uint64_t i = 0; i < numOfBinPages; i++){
+        _updatePageTable(startVa, startPa, PT_LEVEL - 1);
+        _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
 
-    //     startVa += PAGE_SIZE;
-    //     startPa += PAGE_SIZE;
-    // }
+        startVa += PAGE_SIZE;
+        startPa += PAGE_SIZE;
+    }
 
 
     // pHart0->VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
@@ -389,13 +461,41 @@ extern void __ExtBinRomLocEnd();
     // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
     // startVa = 0xFFFFFFFF00000000UL | startPa;
     // _updatePageTableOtherThread((uint64_t*)ptVa, 0x2000, startPa, PT_LEVEL - 1);
+    uint64_t* root = (uint64_t*)ptVa;
+
+    // printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+
+    for(int i = 0; i <= 511; i++){
+        if(root[i] & Valid){
+            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+            
+            for(int j = 0; j <= 511; j++){
+                if(ppt[j] & Valid){
+                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+
+                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+
+                    for(int k = 0; k <= 511; k++){
+                        if(ppe[k] & Valid){
+                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
     
-    // uint64_t value = ((8UL << 60) | (ptPa >> 12));
+    uint64_t value = ((8UL << 60) | (ptPa >> 12));
 
 extern uint64_t newPtSatp;
-    // newPtSatp = value;
-
-    // printf("Value: %d\n", newPtSatp);
+    newPtSatp = value;
+    uint64_t satp;
+    pHart0->RegisterAccess.readStap(&satp);
+    printf("PT Address: %x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+    printf("PT Address: %x%x\n", ptPa >> 32, ptPa);
+    printf("Value: %x%x\n", newPtSatp >> 32, newPtSatp);
+    printf("Value: %x%x\n", satp >> 32, satp);
     // pHart0->RegisterAccess.writeSatp(value);
     // pHart0->RegisterAccess.flushTlb();
 }

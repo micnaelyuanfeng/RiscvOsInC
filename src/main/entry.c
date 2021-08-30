@@ -30,7 +30,7 @@ void kentry(uint64_t _hid){
 
 extern void fnEntry();
     if(_hid == 1) fnEntry();
-
+    
     pHart0 = &HartInstance[_hid];
     pHart0Daemon = pHart0;
 
@@ -44,25 +44,25 @@ extern void fnEntry();
 
     fnVmInit(_hid);
     fnBuildRootPageTable();
-    fnMalloMapUtilitiesMem();
-    fnMallocMapTest();
+    // fnMalloMapUtilitiesMem();
+    // fnMallocMapTest();
     fnThreadControlInit();
-    fnTimerInit(_hid);
-    fnInterruptTest();
+    // fnTimerInit(_hid);
+    // fnInterruptTest();
     
-    memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t));
+    // memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t));
 
     // pHart0 = &((HartInfo_t*)pHartInstance)[_hid];
 
-    uint64_t cycle = 0;
+    // uint64_t cycle = 0;
 
-    pHart0->RegisterAccess.readCcyle(&cycle);
+    // pHart0->RegisterAccess.readCcyle(&cycle);
 
-    printf("cycle is %x\n", cycle);
+    // printf("cycle is %x\n", cycle);
 
-    printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
-    printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
-
+    // printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
+    // printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+    // fnBuildPtForOtherThread(1);
 
     fnGreetingPrint();
     
