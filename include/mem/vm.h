@@ -76,6 +76,7 @@ void fnBuildRootPageTable();
 void fnMalloMapUtilitiesMem();
 void fnBuildPtForHartOne();
 void updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level);
+void fnDebugPrintPtClone();
 
 void fnMallocMapTest();
 void fnFreeMapTest();

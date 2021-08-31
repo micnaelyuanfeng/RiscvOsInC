@@ -55,17 +55,6 @@ SECTIONS
         *(.data.*)
     }
 
-    /* Testing Purpose */
-    . = ALIGN(4096);
-    __ExtBinRomLocStart = .;
-    .ebin : {
-        *(.extcode)
-        *(.extdata)
-    }
-    . += 0x10000;
-    . = ALIGN(4096);
-    __ExtBinRomLocEnd = .;
-
     . = ALIGN(4096);
     _bss_start = .;
 
