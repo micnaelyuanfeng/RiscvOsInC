@@ -17,6 +17,7 @@ extern bool procecedLock;
 
 extern HartInfo_t HartInstance[];
 extern HartInfo_t* pHart0;
+extern HartInfo_t* pHart1;
 extern HartInfo_t* pHart0Daemon;
 
 static void memcpy(uint8_t* dst, uint8_t* src, uint32_t sizeInBytes){
@@ -44,25 +45,20 @@ extern void fnEntry();
 
     fnVmInit(_hid);
     fnBuildRootPageTable();
-    // fnMalloMapUtilitiesMem();
-    // fnMallocMapTest();
+    fnMalloMapUtilitiesMem();
+    fnMallocMapTest();
     fnThreadControlInit();
-    // fnTimerInit(_hid);
-    // fnInterruptTest();
-    
+    fnTimerInit(_hid);
+    fnInterruptTest();
+    pHart0->VmControl.ptAllocAndMapCbMem();
+
     // memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t));
 
-    // pHart0 = &((HartInfo_t*)pHartInstance)[_hid];
+    // memcpy((uint8_t*)&((HartInfo_t*)pHartInstance)[1], (uint8_t*)HartInstance, _sizeof(HartInfo_t));
 
-    // uint64_t cycle = 0;
-
-    // pHart0->RegisterAccess.readCcyle(&cycle);
-
-    // printf("cycle is %x\n", cycle);
-
-    // printf("Root Page Table is 0x%x%x\n", pHart0->VmControl.ptVa >> 32, pHart0->VmControl.ptVa);
-    // printf("Root Page Tabke is 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
-    // fnBuildPtForOtherThread(1);
+    memcpy((uint8_t*)&HartInstance[1], (uint8_t*)HartInstance, _sizeof(HartInfo_t));
+    
+    pHart1 = &HartInstance[1];
 
     fnGreetingPrint();
     

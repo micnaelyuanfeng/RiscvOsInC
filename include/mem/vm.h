@@ -74,7 +74,7 @@ void fnVmInit();
 void fnPtWalk();
 void fnBuildRootPageTable();
 void fnMalloMapUtilitiesMem();
-void fnBuildPtForOtherThread(uint8_t _hartId);
+void fnBuildPtForHartOne();
 void updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, uint8_t level);
 
 void fnMallocMapTest();

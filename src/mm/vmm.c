@@ -10,6 +10,7 @@
 // extern CoreMapCntl_t CoreMapControl;
 // extern RegisterRoute_t RegisterAccess;
 extern HartInfo_t* pHart0;
+extern HartInfo_t* pHart1;
 extern HartInfo_t* pHart0Daemon;
 
 uint64_t _kmap(uint64_t _pa){
@@ -191,59 +192,65 @@ void _ptClone(uint64_t* _ptVa){
         }
     }
 
-    for(int i = 0; i <= 511; i++){
-        if(root[i] & Valid){
-            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
-            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    // for(int i = 0; i <= 511; i++){
+    //     if(root[i] & Valid){
+    //         printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+    //         uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
             
-            for(int j = 0; j <= 511; j++){
-                if(ppt[j] & Valid){
-                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+    //         for(int j = 0; j <= 511; j++){
+    //             if(ppt[j] & Valid){
+    //                 printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
 
-                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    //                 uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
 
-                    for(int k = 0; k <= 511; k++){
-                        if(ppe[k] & Valid){
-                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //                 for(int k = 0; k <= 511; k++){
+    //                     if(ppe[k] & Valid){
+    //                         printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    uint64_t* root2 = (uint64_t*)rootVa;
+    // uint64_t* root2 = (uint64_t*)rootVa;
 
-    // uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
+    // // uint64_t* root = (uint64_t*)pHart0->VmControl.ptVa;
 
-    printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+    // printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
 
-    for(int i = 0; i <= 511; i++){
-        if(root2[i] & Valid){
-            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root2[i] >> 32, root[i]);
-            uint64_t* ppt = (uint64_t*)(((root2[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    // for(int i = 0; i <= 511; i++){
+    //     if(root2[i] & Valid){
+    //         printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root2[i] >> 32, root[i]);
+    //         uint64_t* ppt = (uint64_t*)(((root2[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
             
-            for(int j = 0; j <= 511; j++){
-                if(ppt[j] & Valid){
-                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+    //         for(int j = 0; j <= 511; j++){
+    //             if(ppt[j] & Valid){
+    //                 printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
 
-                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    //                 uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
 
-                    for(int k = 0; k <= 511; k++){
-                        if(ppe[k] & Valid){
-                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //                 for(int k = 0; k <= 511; k++){
+    //                     if(ppe[k] & Valid){
+    //                         printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     // printf("Page Table 2 PA 0x%x%x\n", rootPa >> 32, rootPa);
+    pHart1->VmControl.ptPa = rootPa;
+    pHart1->VmControl.ptVa = rootVa;
 
     uint64_t value = ((8UL << 60) | (rootPa >> 12));
 
     *_ptVa = value;
+}
+
+void fnMalloMapUtilitiesMem(){
+    pHart0->VmControl.ptAllocAndMapCbMem();
 }
 
 void _ptAllocAndMapCbMem(){
@@ -400,7 +407,7 @@ void updatePageTableOtherThread(uint64_t* pPt, uint64_t _ptVa, uint64_t _ptPa, u
     }
 }
 
-void fnBuildPtForOtherThread(uint8_t _hartId){
+void fnBuildPtForHartOne(){
     // uint64_t kernelStart = CoreMapControl.kernelStartAddr;
     // uint64_t kernelEnd = CoreMapControl.kernelEndAddr;
 
@@ -461,30 +468,30 @@ extern void __ExtBinRomLocEnd();
     // startPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
     // startVa = 0xFFFFFFFF00000000UL | startPa;
     // _updatePageTableOtherThread((uint64_t*)ptVa, 0x2000, startPa, PT_LEVEL - 1);
-    uint64_t* root = (uint64_t*)ptVa;
+    // uint64_t* root = (uint64_t*)ptVa;
 
     // printf("Page Table PA 0x%x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
 
-    for(int i = 0; i <= 511; i++){
-        if(root[i] & Valid){
-            printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
-            uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    // for(int i = 0; i <= 511; i++){
+    //     if(root[i] & Valid){
+    //         printf("====> PD0 --> Entry value is %d 0x%x%x\n", i, root[i] >> 32, root[i]);
+    //         uint64_t* ppt = (uint64_t*)(((root[i]) >> 1 << 3) | 0xFFFFFFFF00000000);
             
-            for(int j = 0; j <= 511; j++){
-                if(ppt[j] & Valid){
-                    printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
+    //         for(int j = 0; j <= 511; j++){
+    //             if(ppt[j] & Valid){
+    //                 printf("====>   PD1 --> Entry value is %d 0x%x%x\n", j, ppt[j] >> 32, ppt[j]);
 
-                    uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
+    //                 uint64_t* ppe = (uint64_t*)(((ppt[j]) >> 1 << 3) | 0xFFFFFFFF00000000);
 
-                    for(int k = 0; k <= 511; k++){
-                        if(ppe[k] & Valid){
-                            printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //                 for(int k = 0; k <= 511; k++){
+    //                     if(ppe[k] & Valid){
+    //                         printf("====>      PE ---> Entry value is %d 0x%x%x\n", k, ppe[k] >> 32, ppe[k]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     
     uint64_t value = ((8UL << 60) | (ptPa >> 12));
 

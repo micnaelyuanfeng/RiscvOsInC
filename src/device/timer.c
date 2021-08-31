@@ -4,7 +4,6 @@
 #include "reg.h"
 #include "printf.h"
 #include "hart.h"
-
 // extern RegisterRoute_t RegisterAccess;
 // extern DeviceTimer_t TimerControl;
 extern HartInfo_t* pHart0;

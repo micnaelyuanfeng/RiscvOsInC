@@ -10,6 +10,7 @@
 extern HartInfo_t HartInstance[];
 extern HartInfo_t* pHart1;
 extern HartInfo_t* pHart0;
+extern HartInfo_t* pHart0Daemon;
 
 extern bool procecedLock;
 
@@ -55,13 +56,28 @@ void fnDbgPrint(){
     );
 }
 
+static void memcpy(uint8_t* dst, uint8_t* src, uint32_t sizeInBytes)__attribute__((section (".extcode")));
+void memcpy(uint8_t* dst, uint8_t* src, uint32_t sizeInBytes){
+    for (uint32_t i = 0; i < sizeInBytes; i++){
+        *(dst + i) = *(src + i);
+    }
+}
+
 extern uint8_t PrintBuf[];
 
 void fnEntry() __attribute__((section (".extcode")));
 void fnEntry(){
     while (!procecedLock);
 
-    pHart0->ThreadControl.fork();
+    uint64_t cycle = 0;
+
+    pHart0Daemon->RegisterAccess.readCcyle(&cycle);
+    pHart1->RegisterAccess.readCcyle(&cycle);
+
+    pHart0Daemon->ThreadControl.fork();
+    
+    // printf("cycle is %x\n", cycle);
+    
 
     // fnStdoutInit(PrintBuf, fnUartPutCharWrap);
     // fnUartHwInit();
@@ -81,7 +97,7 @@ void fnEntry(){
 
     // fnMapGlobalMemInit();
     // fnBuildPtForOtherThread(0b10); //Bug1 range is not correct for the other hart  Bug2 Bug3
-    // fnDbgPrint();
+    fnDbgPrint();
     // printf("Hart 2 Start Executing\n");
 
 
