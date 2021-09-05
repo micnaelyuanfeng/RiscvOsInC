@@ -9,7 +9,7 @@
 #include "hart.h"
 
 uint8_t* PrintBuf = (uint8_t*) pPrinfBuf;
-
+uint64_t satp;
 // RegisterRoute_t RegisterAccess = {0};
 // CoreMapCntl_t CoreMapControl = {0};
 // DeviceTimer_t TimerControl = {0};

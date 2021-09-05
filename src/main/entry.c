@@ -48,9 +48,9 @@ extern void fnEntry();
     fnMalloMapUtilitiesMem();
     fnMallocMapTest();
     fnThreadControlInit();
-    fnTimerInit(_hid);
-    fnInterruptTest();
-    pHart0->VmControl.ptAllocAndMapCbMem();
+    // fnTimerInit(_hid);
+    // fnInterruptTest();
+    // pHart0->VmControl.ptAllocAndMapCbMem();
 
     // memcpy((uint8_t*)pHartInstance, (uint8_t*)HartInstance, _sizeof(HartInfo_t));
 
@@ -63,25 +63,33 @@ extern void fnEntry();
     fnGreetingPrint();
     
     // printf("Hart 1 initialization Compelete\n");
-
+    
     procecedLock = true;
+
+    int i = 0;
+    while ( i < 10000000){
+        i = i + 1;
+    }
+
+    // register unsigned int id asm("x17") = 0x4;
+    // register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
+    // asm __volatile__("ecall");
 
 extern void fnSubmitCommand();    
     while(1){
-        // int i = 0;
+        int i = 0;
         // while (i < 500000000) i = i + 1;
         
         // printf("Send ipi from hart %d\n", _hid);
-        // uint64_t hid = 0b10;
-        
-        // acquireLock();
-        // fnSubmitCommand();
+        uint64_t hid = 0b10;
+        acquireCbLock();
+        fnSubmitCommand();
+        // // releaseLock();
+        register unsigned int id asm("x17") = 0x4;
+        register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
+        asm __volatile__("ecall");
+        while (i < 100000000) i = i + 1;
         // releaseLock();
-
-        // register unsigned int id asm("x17") = 0x4;
-        // register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
-        // asm __volatile__("ecall");
-        // while (i < 1000000000) i = i + 1;
-        // releaseLock();
+        releaseCbLock();
     }
 }
