@@ -9,27 +9,21 @@ SECTIONS
 {
     __CommandQueueMemStart = .;
     PROVIDE(__commandBuffMem = .);
-    .utility : {
-        *(.utility.command)
-        . += 0x1000;
-        __CommandQueueMemEnd = .;
-        
-        *(.utility.lock)
-        __LockMemStart = .;
-        PROVIDE(__consoleLock = .);
-        . += 8;
-        PROVIDE(__queueMemLock = .);
-        . += 8;
-        __LockMemEnd = .;
-        
-        __PrinfBuffStart = .;
-        . += 2048;
-        . = ALIGN(4096);
-        __HartInfoArray = .;
-        *(.utility.procInfo)
-    }
+  
+    . += 0x1000;
+    __CommandQueueMemEnd = .;
     
-
+    __LockMemStart = .;
+    PROVIDE(__consoleLock = .);
+    . += 8;
+    PROVIDE(__queueMemLock = .);
+    . += 8;
+    __LockMemEnd = .;
+    
+    __PrinfBuffStart = .;
+    . += 2048;
+    . = ALIGN(4096);
+    __HartInfoArray = .;
 
     . = BASE_ADDRESS;
 
