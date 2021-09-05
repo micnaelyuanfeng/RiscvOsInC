@@ -413,41 +413,41 @@ void fnBuildPtForHartOne(){
 
     // uint64_t numOfKernelPages = (kernelEnd - kernelStart) / PAGE_SIZE; 
 
-extern void __ExtBinRomLocStart();
-extern void __ExtBinRomLocEnd();
+// extern void __ExtBinRomLocStart();
+// extern void __ExtBinRomLocEnd();
 
-#define BinStartVa __ExtBinRomLocStart
-#define BinEndVa __ExtBinRomLocEnd
+// #define BinStartVa __ExtBinRomLocStart
+// #define BinEndVa __ExtBinRomLocEnd
 
-    uint64_t numOfBinPages = (((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE == 0) ? 
-                             1 : ((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE;
+//     uint64_t numOfBinPages = (((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE == 0) ? 
+//                              1 : ((uint64_t)&BinEndVa - (uint64_t)&BinStartVa) / PAGE_SIZE;
 
-    uint64_t startVa = (uint64_t)BinStartVa;
-    uint64_t endVa = (uint64_t)BinEndVa;
-    uint64_t startPa = startVa & ~0xFFFFFFFF00000000UL;
+//     uint64_t startVa = (uint64_t)BinStartVa;
+//     uint64_t endVa = (uint64_t)BinEndVa;
+//     uint64_t startPa = startVa & ~0xFFFFFFFF00000000UL;
 
-    printf("number of pages: %d\n", numOfBinPages);
-    printf("bin starts 0x%x%x\n", startVa >> 32, startVa);
-    printf("bin ends 0x%x%x\n", endVa >> 32, endVa);
+//     printf("number of pages: %d\n", numOfBinPages);
+//     printf("bin starts 0x%x%x\n", startVa >> 32, startVa);
+//     printf("bin ends 0x%x%x\n", endVa >> 32, endVa);
 
 
-    CoreMemBlkInfo_t blkInf = {0};
+//     CoreMemBlkInfo_t blkInf = {0};
 
-    blkInf.numOfPage = 1;
+//     blkInf.numOfPage = 1;
 
-    uint64_t ptPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
+//     uint64_t ptPa = pHart0Daemon->CoreMapControl.kmalloc(&blkInf);
 
-    uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
+//     uint64_t ptVa = 0xFFFFFFFF00000000UL | ptPa;
 
-    _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
+//     _updatePageTable(ptVa, ptPa, PT_LEVEL - 1);
 
-    for (uint64_t i = 0; i < numOfBinPages; i++){
-        _updatePageTable(startVa, startPa, PT_LEVEL - 1);
-        _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
+//     for (uint64_t i = 0; i < numOfBinPages; i++){
+//         _updatePageTable(startVa, startPa, PT_LEVEL - 1);
+//         _updatePageTableOtherThread((uint64_t*)ptVa, startVa, startPa, PT_LEVEL - 1);
 
-        startVa += PAGE_SIZE;
-        startPa += PAGE_SIZE;
-    }
+//         startVa += PAGE_SIZE;
+//         startPa += PAGE_SIZE;
+//     }
 
 
     // pHart0->VmControl.mapRange(_nullptr, 0, PT_LEVEL - 1, UART_BASE);
@@ -493,16 +493,16 @@ extern void __ExtBinRomLocEnd();
     //     }
     // }
     
-    uint64_t value = ((8UL << 60) | (ptPa >> 12));
+    // uint64_t value = ((8UL << 60) | (ptPa >> 12));
 
 extern uint64_t newPtSatp;
-    newPtSatp = value;
-    uint64_t satp;
-    pHart0->RegisterAccess.readStap(&satp);
-    printf("PT Address: %x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
-    printf("PT Address: %x%x\n", ptPa >> 32, ptPa);
-    printf("Value: %x%x\n", newPtSatp >> 32, newPtSatp);
-    printf("Value: %x%x\n", satp >> 32, satp);
+    // newPtSatp = value;
+    // uint64_t satp;
+    // pHart0->RegisterAccess.readStap(&satp);
+    // printf("PT Address: %x%x\n", pHart0->VmControl.ptPa >> 32, pHart0->VmControl.ptPa);
+    // printf("PT Address: %x%x\n", ptPa >> 32, ptPa);
+    // printf("Value: %x%x\n", newPtSatp >> 32, newPtSatp);
+    // printf("Value: %x%x\n", satp >> 32, satp);
     // pHart0->RegisterAccess.writeSatp(value);
     // pHart0->RegisterAccess.flushTlb();
 }
