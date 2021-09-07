@@ -5,6 +5,7 @@
 #include "vm.h"
 #include "trap.h"
 #include "thread.h"
+#include "ringbuffer.h"
 #include "printf.h"
 #include "hart.h"
 

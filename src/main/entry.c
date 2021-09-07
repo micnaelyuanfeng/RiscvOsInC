@@ -9,6 +9,7 @@
 #include "vm.h"
 #include "lock.h"
 #include "thread.h"
+#include "ringbuffer.h"
 #include "printf.h"
 #include "hart.h"
 
@@ -60,6 +61,8 @@ extern void fnEntry();
     
     pHart1 = &HartInstance[1];
 
+    fnRbInit();
+
     fnGreetingPrint();
     
     // printf("Hart 1 initialization Compelete\n");
@@ -67,7 +70,7 @@ extern void fnEntry();
     procecedLock = true;
 
     int i = 0;
-    while ( i < 10000000){
+    while ( i < 100000000){
         i = i + 1;
     }
 
@@ -83,7 +86,9 @@ extern void fnSubmitCommand();
         // printf("Send ipi from hart %d\n", _hid);
         uint64_t hid = 0b10;
         acquireCbLock();
-        fnSubmitCommand();
+        // fnSubmitCommand();
+        
+        // if(!fnRbSubmit()) printf("submit failed\n");
         // // releaseLock();
         register unsigned int id asm("x17") = 0x4;
         register unsigned int hart_mask asm("x10") = (uint64_t)&hid;
