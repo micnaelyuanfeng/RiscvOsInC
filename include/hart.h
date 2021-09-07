@@ -6,6 +6,7 @@
 #include "trap.h"
 #include "thread.h"
 #include "device.h"
+#include "ringbuffer.h"
 
 #define NUM_OF_HART 8
 
@@ -16,7 +17,7 @@ typedef struct HartInfo{
     VMControl_t VmControl;
     ThreadCntl_t ThreadControl;
     DeviceRingBuf_t CmdRingMem;
-    
+    RingBufferControl_t* pRingBufCrtl;
 }HartInfo_t;
 
 #endif
