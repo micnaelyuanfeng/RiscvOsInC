@@ -114,6 +114,8 @@ extern void __switchTo(uint64_t a, uint64_t b);
 
     satp = pContextContent->satp;
 
+    printf("~~~~~~~~ start logging ~~~~~~~~\n");
+
     __switchTo((uint64_t)&((Thread_t*)thread2ContextVa)->context, (uint64_t)&ptr);
 }
 
